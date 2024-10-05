@@ -3,7 +3,7 @@
 import { Component } from "@odoo/owl";
 
 export class DashboardItem extends Component {
-    static template = "awesome_dashboard.DashboardItem"
+    static template = "cuadro_de_mando.DashboardItem"
     static props = {
         slots: {
             type: Object,

@@ -5,7 +5,7 @@ import { getColor } from "@web/core/colors/colors";
 import { Component, onWillStart, useRef, onMounted, onWillUnmount } from "@odoo/owl";
 
 export class PieChart extends Component {
-    static template = "awesome_dashboard.PieChart";
+    static template = "cuadro_de_mando.PieChart";
     static props = {
         label: String,
         data: Object,

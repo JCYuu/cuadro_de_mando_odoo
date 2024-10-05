@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Awesome Dashboard",
+    'name': "Cuadro de Mando",
 
     'summary': """
-        Starting module for "Discover the JS framework, chapter 2: Build a dashboard"
+        Visualizar indicadores personalizados por el usuario"
     """,
 
     'description': """
-        Starting module for "Discover the JS framework, chapter 2: Build a dashboard"
+        Módulo de Cuadro de Mando basado en indicadores"
     """,
 
-    'author': "Odoo",
-    'website': "https://www.odoo.com/",
-    'category': 'Tutorials/AwesomeDashboard',
+    'author': "JCYuuu",
+    'website': "https://github.com/JCYuu/cuadro_de_mando_odoo",
+    'category': '',
     'version': '0.1',
     'application': True,
     'installable': True,
@@ -25,11 +25,11 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'awesome_dashboard/static/src/**/*',
-            ('remove', 'awesome_dashboard/static/src/dashboard/**/*'),
+            'cuadro_de_mando/static/src/**/*',
+            ('remove', 'cuadro_de_mando/static/src/dashboard/**/*'),
         ],
-        'awesome_dashboard.dashboard': [
-            'awesome_dashboard/static/src/dashboard/**/*'
+        'cuadro_de_mando.dashboard': [
+            'cuadro_de_mando/static/src/dashboard/**/*'
         ]
 
     },

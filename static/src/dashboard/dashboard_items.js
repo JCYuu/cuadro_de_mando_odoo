@@ -63,5 +63,5 @@ const items = [
 ]
 
 items.forEach(item => {
-    registry.category("awesome_dashboard").add(item.id, item);
+    registry.category("cuadro_de_mando").add(item.id, item);
 });

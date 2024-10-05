@@ -14,8 +14,8 @@ import {PieChartCard} from "./pie_chart_card/pie_chart_card";
 
 
 
-class AwesomeDashboard extends Component {
-    static template = "awesome_dashboard.AwesomeDashboard";
+class IndicatorDashboard extends Component {
+    static template = "cuadro_de_mando.IndicatorDashboard";
     static components = { Layout, DashboardItem };
 
     setup() {
@@ -27,7 +27,7 @@ class AwesomeDashboard extends Component {
         this.display = {
             controlPanel: {},
         };
-        this.items = registry.category("awesome_dashboard").getAll();
+        this.items = registry.category("cuadro_de_mando").getAll();
         this.addedItems = useState([]);
         this.modules = useState({list: []});
         this.state = useState({
@@ -120,7 +120,7 @@ class AwesomeDashboard extends Component {
 }
 
 class NewItemDialog extends Component {
-    static template = "awesome_dashboard.NewItemDialog";
+    static template = "cuadro_de_mando.NewItemDialog";
     static components = { Dialog };
     static props = ["close", "modules", "models", "updateItems"]
 
@@ -220,7 +220,7 @@ class NewItemDialog extends Component {
 }
 
 class ConfigurationDialog extends Component {
-    static template = "awesome_dashboard.ConfigurationDialog";
+    static template = "cuadro_de_mando.ConfigurationDialog";
     static components = { Dialog, CheckBox };
     static props = ["close", "items", "disabledItems", "onUpdateConfiguration", "modules"];
 
@@ -260,4 +260,4 @@ class ConfigurationDialog extends Component {
 
 }
 
-registry.category("lazy_components").add("AwesomeDashboard", AwesomeDashboard);
+registry.category("lazy_components").add("IndicatorDashboard", IndicatorDashboard);
