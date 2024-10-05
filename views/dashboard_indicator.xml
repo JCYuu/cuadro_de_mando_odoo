@@ -1,0 +1,37 @@
+<odoo>
+    <record id="view_dashboard_indicator_form" model="ir.ui.view">
+        <field name="name">dashboard.indicator.form</field>
+        <field name="model">dashboard.indicator</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard Indicator">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="module"/>
+                        <field name="model"/>
+                        <field name="graph_type"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dashboard_indicator_tree" model="ir.ui.view">
+        <field name="name">dashboard.indicator.tree</field>
+        <field name="model">dashboard.indicator</field>
+        <field name="arch" type="xml">
+            <tree string="Dashboard Indicators">
+                <field name="name"/>
+                <field name="module"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_dashboard_indicator" model="ir.actions.act_window">
+        <field name="name">Dashboard Indicators</field>
+        <field name="res_model">dashboard.indicator</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_dashboard_indicator" name="Dashboard Indicators" action="action_dashboard_indicator" parent="awesome_dashboard.menu_root"/>
+</odoo>

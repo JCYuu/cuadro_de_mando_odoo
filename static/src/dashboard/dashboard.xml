@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="awesome_dashboard.AwesomeDashboard">
+        <Layout display="display" className="'o_dashboard overflow-auto h-100 container-fluid'">
+            <t t-set-slot="layout-buttons">
+                <button class="btn btn-primary" t-on-click="openCustomerView">Customers</button>
+                <button class="btn btn-primary" t-on-click="openLeads">Leads</button>
+                <button class="btn btn-primary" t-on-click="openNewItem">New item</button>
+            </t>
+
+            <t t-set-slot="control-panel-additional-actions">
+                <button t-on-click="openConfiguration" class="btn p-0 ms-1 border-0">
+                    <i class="fa fa-cog"></i>
+                </button>
+            </t>
+
+
+            <div class="d-flex flex-wrap" t-if="statistics.isReady">
+                <t t-foreach="items" t-as="item" t-key="item.id">
+                    <DashboardItem t-if="!state.disabledItems.includes(item.id)" size="item.size || 1">
+                        <t t-set="itemProp" t-value="item.props ? item.props(statistics) : {'data': statistics}"/>
+                        <t t-component="item.Component" t-props="itemProp"/>
+                    </DashboardItem>
+                </t>
+                <t t-foreach="addedItems" t-as="item" t-key="item.id">
+                    <DashboardItem size="item.size || 1">
+                        <t t-set="itemProp" t-value="item.props ? item.props : {'data': statistics}"/>
+                        <t t-component="item.Component" t-props="itemProp" />
+                    </DashboardItem>
+                </t>
+            </div>
+        </Layout>    
+    </t>
+
+    <t t-name="awesome_dashboard.ConfigurationDialog">
+        <Dialog title="'Dashboard items configuration'">
+            Which cards do you wish to see ?
+            <t t-foreach="items" t-as="item" t-key="item.id">
+                <CheckBox value="item.enabled" onChange="(ev) => this.onChange(ev, item)">
+                    <t t-esc="item.description"/>
+                </CheckBox>
+            </t>
+            <select class="form-select">
+                <option selected="true">Select a module</option>
+                <t t-foreach="modules" t-as="module" t-key="module.name">
+                    <option t-att-value="module.name" t-esc="module.desc"></option>
+                </t>
+            </select>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="done">
+                    Done
+                </button>
+            </t>
+
+        </Dialog>
+    </t>
+
+    <t t-name="awesome_dashboard.NewItemDialog">
+        <Dialog title="'New Indicator'">
+            Configure your new Indicator
+            <div class="row p-2">
+                <div class="col p-2">
+                    <label class="form-label" for="module_selector">Module to retrieve data:</label>
+                    <select id="module_selector" t-model="state.selectedModule" t-on-change="fetchModels" class="form-select">
+                        <option value="" selected="true">Select a module</option>
+                        <t t-foreach="modules" t-as="module" t-key="module.name">
+                            <option t-att-value="module.name" t-esc="module.desc"></option>
+                        </t>
+                    </select>
+                </div>
+                <div class="col p-2">
+                    <label class="form-label" for="model_selector">Model:</label>
+                    <select id="model_selector" t-if="state.moduleIsSelected" t-model="state.selectedModel" t-on-change="fetchModelFields" class="form-select">
+                        <option value="" selected="true">Select a model</option>
+                        <t t-foreach="models" t-as="model" t-key="model.model">
+                            <option t-att-value="model.model" t-esc="model.model_name"></option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <div class="row p-2">
+                <div class="col p-2">
+                    <label class="form-label" for="data_field_selector">Data:</label>
+                    <select id="data_field_selector" t-if="state.modelIsSelected" t-model="state.selectedField" class="form-select">
+                        <option value="" selected="true">Select a field</option>
+                        <t t-foreach="fields" t-as="field" t-key="field.name">
+                            <option t-att-value="field.name" t-if="['integer', 'char', 'float', 'text', 'boolean'].includes(field.type)" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                        </t>
+                    </select>
+                    <div class="form-check p-2">
+                        <input class="form-check-input" t-model="state.countField" type="checkbox" value="" id="count"/>
+                        <label class="form-check-label" for="count">
+                             Count
+                        </label>
+                    </div>
+                </div>
+                <div class="col p-2">
+                    <label class="form-label" for="label_selector">Graph labels:</label>
+                    <select id="label_selector" t-if="state.modelIsSelected" t-model="state.labelsField" class="form-select">
+                        <option value="" selected="true">Select fields to act as labels</option>
+                        <t t-foreach="fields" t-as="field" t-key="field.name">
+                            <option t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'one2many', 'many2many'].includes(field.type)" t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <div class="row p-2">
+                <div class="col p-2">
+                    <label class="form-label" for="order_by_field_selector">Order by:</label>
+                    <select id="order_by_field_selector" t-if="state.modelIsSelected" t-model="state.orderByField" class="form-select">
+                        <option value="" selected="true">Select the field to order by</option>
+                        <t t-foreach="fields" t-as="field" t-key="field.name">
+                            <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <div class="row p-2">
+                <div class="col p-2">
+                    <label class="form-label" for="grouped_fields_selector">Group by:</label>
+                    <select id="grouped_fields_selector" t-if="state.modelIsSelected" t-on-change="onChangeGroups" class="form-select" multiple="true">
+                        <option value="" selected="true">Select the fields to group by</option>
+                        <t t-foreach="fields" t-as="field" t-key="field.name">
+                            <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <div class="row p-2">
+                <t t-foreach="state.groupingFields" t-as="field" t-key="field.name">
+                    <div class="col p-2">
+                        <label t-att-for="`${field.name}_selector`" class="form-label" t-if="field.data"><t t-esc="field.description"/> identifier</label>
+                        <select t-att-id="`${field.name}_selector`" class="form-select" t-if="field.data">
+                            <option value="" selected="true">Select the field to represent <t t-esc="field.description"></t></option>
+                            <t t-foreach="field.data" t-as="relationField" t-key="relationField.name">
+                                <option t-if="relationField.type == 'char'" t-att-value="relationField.name" t-esc="`${relationField.string} - Tipo: ${relationField.type}`"></option>
+                            </t>
+                        </select>
+                    </div>
+                </t>
+            </div>
+            <div class="row p-2">
+                <div class="col p-2">
+                    <label class="form-label" for="item_type_selector">Indicator type:</label>
+                    <t t-set="item_types" t-value="[{type: 'number', name: 'Number Card'}, {type: 'pie', name: 'Pie Chart'}, {type: 'bar', name: 'Bar Chart'}, {type: 'line', name: 'Line Chart'}]" />
+                    <select id="item_type_selector" t-model="state.dashboardItemType" class="form-select">
+                        <option value="" selected="true">Select the type of indicator</option>
+                        <t t-foreach="item_types" t-as="item" t-key="item.type">
+                            <option t-att-value="item.type" t-esc="item.name"></option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="fetchTheData">
+                    Add to dashboard
+                </button>
+            </t>
+        </Dialog>
+    </t>
+</templates>
