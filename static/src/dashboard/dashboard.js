@@ -140,6 +140,7 @@ class NewItemDialog extends Component {
             moduleIsSelected: false,
             modelIsSelected: false,
             groupingFields: [],
+            groupingLabels: {},
         });
     }
 
@@ -190,6 +191,21 @@ class NewItemDialog extends Component {
 
     }
 
+    async fetchTheDataTest() {
+        try{
+            let data = await this.rpc('/awesome_dashboard/indicator_query', {
+                model_name: this.state.selectedModel,
+                labels: this.state.labelsField,
+                field: this.state.selectedField,
+                group_by: this.state.groupingFields.map(field => field.name),
+                group_by_label: this.state.groupingLabels
+            })
+            console.log(data);
+        }catch (error){
+            console.log("This error while testing query: ", error);
+        }
+    }
+
     async onChangeGroups(event) {
         console.log("entered on change");
         const options = event.target.options;
@@ -203,20 +219,32 @@ class NewItemDialog extends Component {
                             this.state.groupingFields.push({
                                 'name': option.value,
                                 'description': field.string,
+                                'relation': field.relation,
                                 'data': data
                             });
                         }
-                        else this.state.groupingFields.push({'name': option.value, 'description': field.string});
+                        else {
+                            this.state.groupingFields.push({'name': option.value, 'description': field.string});
+                        }
                     }
                 }
             }
         }
-      /*  const option = event.target
-        if (option.selected) this.state.groupingFields.push(option.value);
-        else this.state.groupingFields = this.state.groupingFields.filter((value) => (value !== option.value));
-        console.log(this.state.groupingFields);*/
     }
+     async onChangeGroupsLabel(event, model) {
+        console.log('OnChangeGroupLabel')
+        console.log(typeof event.target.value);
+        console.log(typeof model);
+        console.log(this.state.groupingFields);
+        console.log(this.state.groupingLabels);
+        try {
+            this.state.groupingLabels[model] = event.target.value;
+            console.log(this.state.groupingLabels);
+        } catch (error) {
+            console.log('error in the group label: ', error);
+        }
 
+    }
 }
 
 class ConfigurationDialog extends Component {

@@ -111,7 +111,7 @@
                     <select id="order_by_field_selector" t-if="state.modelIsSelected" t-model="state.orderByField" class="form-select">
                         <option value="" selected="true">Select the field to order by</option>
                         <t t-foreach="fields" t-as="field" t-key="field.name">
-                            <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                            <option t-att-value="field.name"  t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                         </t>
                     </select>
                 </div>
@@ -122,16 +122,16 @@
                     <select id="grouped_fields_selector" t-if="state.modelIsSelected" t-on-change="onChangeGroups" class="form-select" multiple="true">
                         <option value="" selected="true">Select the fields to group by</option>
                         <t t-foreach="fields" t-as="field" t-key="field.name">
-                            <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                            <option t-att-value="field.name" t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                         </t>
                     </select>
                 </div>
             </div>
             <div class="row p-2">
                 <t t-foreach="state.groupingFields" t-as="field" t-key="field.name">
-                    <div class="col p-2">
-                        <label t-att-for="`${field.name}_selector`" class="form-label" t-if="field.data"><t t-esc="field.description"/> identifier</label>
-                        <select t-att-id="`${field.name}_selector`" class="form-select" t-if="field.data">
+                    <div class="col p-2" t-if="field.data">
+                        <label t-att-for="`${field.name}_selector`" class="form-label"><t t-esc="field.description"/> identifier</label>
+                        <select t-att-id="`${field.name}_selector`" class="form-select" t-on-change="(event) => this.onChangeGroupsLabel(event, field.relation)">
                             <option value="" selected="true">Select the field to represent <t t-esc="field.description"></t></option>
                             <t t-foreach="field.data" t-as="relationField" t-key="relationField.name">
                                 <option t-if="relationField.type == 'char'" t-att-value="relationField.name" t-esc="`${relationField.string} - Tipo: ${relationField.type}`"></option>
@@ -153,7 +153,7 @@
                 </div>
             </div>
             <t t-set-slot="footer">
-                <button class="btn btn-primary" t-on-click="fetchTheData">
+                <button class="btn btn-primary" t-on-click="fetchTheDataTest">
                     Add to dashboard
                 </button>
             </t>

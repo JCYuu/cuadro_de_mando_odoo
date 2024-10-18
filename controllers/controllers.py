@@ -8,7 +8,8 @@ from odoo.http import request
 
 logger = logging.getLogger(__name__)
 
-class AwesomeDashboard(http.Controller):
+class IndicatorDashboard(http.Controller):
+
     @http.route('/awesome_dashboard/statistics', type='json', auth='user')
     def get_statistics(self):
         """
@@ -60,4 +61,26 @@ class AwesomeDashboard(http.Controller):
     def get_pie_chart_data(self, model_name, labels, field):
         data = request.env[model_name].search([])
         return {record[labels]: record[field] for record in data}
+
+
+    def get_relational_label(self, item, labels):
+        item_type = type(item).__name__
+        return item[labels[item_type]] if item_type in labels.keys() else item
+
+    @http.route('/awesome_dashboard/indicator_query', type='json', auth='user')
+    def query_indicator_data(self, model_name, labels, field, agg='count', order_by=None, group_by=None, group_by_label=None):
+        print('model name', model_name)
+        print('labels', labels)
+        print('field', field)
+        print('group by', group_by)
+        print('group by label', group_by_label)
+        main_data = []
+        if group_by:
+            main_data = request.env[model_name]._read_group([], aggregates=[f'{field}:{agg}'], groupby=[*group_by])
+            print(main_data)
+            for index, record in enumerate(main_data):
+                main_data[index] = list(map(lambda item: self.get_relational_label(item, group_by_label), record))
+                print(main_data[index])
+            print(main_data)
+            return main_data
 

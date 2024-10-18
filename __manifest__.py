@@ -12,8 +12,6 @@
 
     'author': "JCYuuu",
     'website': "https://github.com/JCYuu/cuadro_de_mando_odoo",
-    'category': '',
-    'version': '0.1',
     'application': True,
     'installable': True,
     'depends': ['base', 'web', 'mail', 'crm'],
