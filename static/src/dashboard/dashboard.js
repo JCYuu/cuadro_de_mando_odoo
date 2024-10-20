@@ -193,9 +193,8 @@ class NewItemDialog extends Component {
 
     async fetchTheDataTest() {
         try{
-            let data = await this.rpc('/awesome_dashboard/indicator_query', {
+            let data = await this.rpc('/awesome_dashboard/group_query', {
                 model_name: this.state.selectedModel,
-                labels: this.state.labelsField,
                 field: this.state.selectedField,
                 group_by: this.state.groupingFields.map(field => field.name),
                 group_by_label: this.state.groupingLabels

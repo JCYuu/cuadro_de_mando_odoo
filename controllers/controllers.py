@@ -84,3 +84,39 @@ class IndicatorDashboard(http.Controller):
             print(main_data)
             return main_data
 
+    @http.route('/awesome_dashboard/group_query', type='json', auth='user')
+    def group_query_indicator(self, model_name, field, group_by, group_by_label=None, agg='count', order_by=None):
+        print('Entered group query')
+        print('model name', model_name)
+        print('field', field)
+        print('agg', agg)
+        print('group by', group_by)
+        print('group by label', group_by_label)
+        print('Order by', order_by)
+        main_data = request.env[model_name]._read_group([], aggregates=[f'{field}:{agg}'], groupby=[*group_by])
+        labelled_data = []
+        for index, record in enumerate(main_data):
+            labelled_data.append(list(map(lambda item: self.get_relational_label(item, group_by_label), record)))
+        print(labelled_data)
+        data_json = dict()
+        # if len(group_by) >= 2:
+        #     for depth in range(len(group_by) - 1):
+        #         for record in labelled_data:
+        if len(group_by) == 2:
+            for record in labelled_data:
+                if record[0] in data_json:
+                    data_json[record[0]] |= {
+                        record[1]: {
+                            f'{agg}_{field}': record[2]
+                        }
+                    }
+                else:
+                    data_json[record[0]] = {
+                        record[1]: {
+                            f'{agg}_{field}': record[2]
+                        }
+                }
+
+
+        print(data_json)
+        return data_json

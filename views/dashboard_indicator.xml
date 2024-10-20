@@ -33,5 +33,5 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem id="menu_dashboard_indicator" name="Dashboard Indicators" action="action_dashboard_indicator" parent="awesome_dashboard.menu_root"/>
+<!--    <menuitem id="menu_dashboard_indicator" name="Dashboard Indicators" action="action_dashboard_indicator" parent="awesome_dashboard.menu_root"/>-->
 </odoo>
