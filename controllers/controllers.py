@@ -95,7 +95,7 @@ class IndicatorDashboard(http.Controller):
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
     def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = None,
-                              agg: str = 'count', order_by: str = None, graph: bool = False):
+                              agg: str = 'count', order_by: str = None, graph: bool = False) -> dict:
         """
         Returns the group query for desired field and specified aggregations.
 
