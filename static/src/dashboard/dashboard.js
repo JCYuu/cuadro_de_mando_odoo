@@ -134,7 +134,7 @@ class NewItemDialog extends Component {
             selectedModel: "",
             selectedField: "",
             labelsField: "",
-            countField: false,
+            aggregation: 'count',
             orderByField: "",
             dashboardItemType: "",
             moduleIsSelected: false,
@@ -159,6 +159,13 @@ class NewItemDialog extends Component {
         }
     }
 
+    changeAggregation(event, agg) {
+        console.log(event);
+        if (event.target.checked) {
+            this.state.aggregation = agg;
+            console.log(this.state.aggregation);
+        }
+    }
     async fetchModelFields() {
         this.state.modelIsSelected = false;
         console.log(this.state.selectedModel);
@@ -209,8 +216,45 @@ class NewItemDialog extends Component {
     async onChangeGroups(event) {
         console.log("entered on change");
         const options = event.target.options;
+        const field1 = document.getElementById('grouped_field_selector-1').value;
+        const field2 = document.getElementById('grouped_field_selector-2').value;
+        console.log(field1, field2);
+
+
         this.state.groupingFields = [];
-        for (const option of options) {
+        for (const field of this.fields) {
+            if (field1 && field1 == field.name){
+                if (field.relation){
+                    let data = await this.fetchRelationalFieldsData(field.relation);
+                    this.state.groupingFields.push(
+                        {
+                            'name': field1,
+                            'description': field.string,
+                            'relation': field.relation,
+                            'data': data,
+                        });
+                }
+                else {
+                    this.state.groupingFields.push({'name': field1, 'description': field.string});
+                }
+            }
+            if (field1 && field2 && field2 == field.name){
+                if (field.relation){
+                    let data = await this.fetchRelationalFieldsData(field.relation);
+                    this.state.groupingFields.push(
+                        {
+                            'name': field2,
+                            'description': field.string,
+                            'relation': field.relation,
+                            'data': data,
+                        });
+                }
+                else {
+                    this.state.groupingFields.push({'name': field2, 'description': field.string});
+                }
+            }
+        }
+        /*for (const option of options) {
             if (option.selected && option.value !== "") {
                 for (const field of this.fields) {
                     if (option.value == field.name) {
@@ -229,7 +273,7 @@ class NewItemDialog extends Component {
                     }
                 }
             }
-        }
+        }*/
     }
      async onChangeGroupsLabel(event, model) {
         console.log('OnChangeGroupLabel')
