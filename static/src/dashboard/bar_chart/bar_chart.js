@@ -4,11 +4,9 @@ import { loadJS } from "@web/core/assets";
 import { getColor } from "@web/core/colors/colors";
 import { Component, onWillStart, useRef, onMounted, onWillUnmount } from "@odoo/owl";
 
-export class PieChart extends Component {
-    static template = "cuadro_de_mando.PieChart";
+export class BarChart extends Component {
+    static template = "cuadro_de_mando.BarChart";
     static props = {
-        label: String,
-        data: Object,
         graph_data: Object
     };
 
@@ -24,8 +22,6 @@ export class PieChart extends Component {
     }
 
     renderChart() {
-        // const labels = Object.k0eys(this.props.data);
-        // const data = Object.values(this.props.data);
         const labels = this.props.graph_data.labels;
         const datasets = this.props.graph_data.datasets;
         const color = labels.map((_, index) => getColor(index));
@@ -43,7 +39,7 @@ export class PieChart extends Component {
             },
         });*/
         this.chart = new Chart(this.canvasRef.el, {
-            type: "pie",
+            type: "bar",
             data: {
                 labels: labels,
                 datasets: datasets,

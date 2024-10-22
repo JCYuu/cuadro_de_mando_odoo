@@ -50,7 +50,10 @@ const items = [
             value: data.total_amount,
         })
     },
-    {
+
+]
+
+let something =  {
         id: "pie_chart",
         description: "Shirt orders by size",
         Component: PieChartCard,
@@ -60,7 +63,6 @@ const items = [
             values: data.orders_by_size,
         })
     }
-]
 
 items.forEach(item => {
     registry.category("cuadro_de_mando").add(item.id, item);
