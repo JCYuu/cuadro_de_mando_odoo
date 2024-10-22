@@ -8,6 +8,7 @@ from odoo.http import request
 
 logger = logging.getLogger(__name__)
 
+
 class IndicatorDashboard(http.Controller):
 
     @http.route('/awesome_dashboard/statistics', type='json', auth='user')
@@ -56,35 +57,45 @@ class IndicatorDashboard(http.Controller):
         model_fields = request.env[model_name].fields_get()
         print(model_fields)
         return [model_fields[field] for field in model_fields]
+
     @http.route('/awesome_dashboard/fetch_for_pie_chart', type='json', auth='user')
     def get_pie_chart_data(self, model_name, labels, field):
         data = request.env[model_name].search([])
         return {record[labels]: record[field] for record in data}
-
 
     def get_relational_label(self, item, labels):
         item_type = type(item).__name__
         return item[labels[item_type]] if item_type in labels.keys() else item
 
     @http.route('/awesome_dashboard/indicator_query', type='json', auth='user')
-    def query_indicator_data(self, model_name, labels, field, agg='count', order_by=None, group_by=None, group_by_label=None):
+    def query_indicator_data(self, model_name: str, labels: str, field: str, graph: bool = False) -> dict:
+        """
+        Return query data for specified model using labels as data identifiers.
+        
+        :param model_name: model to query
+        :param labels: labels to identify each dataset value
+        :param field: field to query from model
+        :param graph: to return data in chart.js format
+        :return: a json with the query result
+        """
         print('model name', model_name)
         print('labels', labels)
         print('field', field)
-        print('group by', group_by)
-        print('group by label', group_by_label)
-        main_data = []
-        if group_by:
-            main_data = request.env[model_name]._read_group([], aggregates=[f'{field}:{agg}'], groupby=[*group_by])
-            print(main_data)
-            for index, record in enumerate(main_data):
-                main_data[index] = list(map(lambda item: self.get_relational_label(item, group_by_label), record))
-                print(main_data[index])
-            print(main_data)
-            return main_data
+
+        main_data = request.env[model_name].search([])
+        if graph:
+            graph_labels = [record[labels] for record in main_data]
+            graph_dataset = {'label': field, 'data': [record[field] for record in main_data]}
+            return {
+                'labels': graph_labels,
+                'datasets': graph_dataset
+            }
+        else:
+            return {record[labels]: record[field] for record in main_data}
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
-    def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = None, agg: str = 'count', order_by: str = None, graph: bool = False):
+    def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = None,
+                              agg: str = 'count', order_by: str = None, graph: bool = False):
         """
         Returns the group query for desired field and specified aggregations.
 
