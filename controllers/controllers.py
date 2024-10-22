@@ -36,13 +36,13 @@ class IndicatorDashboard(http.Controller):
         }
 
     @http.route('/awesome_dashboard/modules', type='json', auth='user')
-    def get_modules(self):
+    def get_modules(self) -> list:
         print('called get modules')
         modules = request.env["ir.module.module"].search([("state", "=", "installed")])
         return [{'name': module.name, 'desc': module.shortdesc} for module in modules]
 
     @http.route('/awesome_dashboard/models', type='json', auth='user')
-    def get_models(self, module_name):
+    def get_models(self, module_name: str) -> list:
         print("called get models")
         print(module_name)
         model_data_records = request.env['ir.model.data'].search([("module", "=", module_name)])
@@ -50,13 +50,12 @@ class IndicatorDashboard(http.Controller):
         return [{'model': model.model, 'model_name': model.name} for model in model_names]
 
     @http.route('/awesome_dashboard/model_fields', type='json', auth='user')
-    def get_model_fields(self, model_name):
+    def get_model_fields(self, model_name: str) -> list:
         print("called get fields")
         print('model name: ', model_name)
         model_fields = request.env[model_name].fields_get()
         print(model_fields)
         return [model_fields[field] for field in model_fields]
-
     @http.route('/awesome_dashboard/fetch_for_pie_chart', type='json', auth='user')
     def get_pie_chart_data(self, model_name, labels, field):
         data = request.env[model_name].search([])
@@ -85,7 +84,19 @@ class IndicatorDashboard(http.Controller):
             return main_data
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
-    def group_query_indicator(self, model_name, field, group_by, group_by_label=None, agg='count', order_by=None):
+    def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = None, agg: str = 'count', order_by: str = None, graph: bool = False):
+        """
+        Returns the group query for desired field and specified aggregations.
+
+        :param model_name: The model to be queried
+        :param field: Field of the model to be query
+        :param group_by: list of fields to group by max: 2
+        :param group_by_label: identifiers for relational fields
+        :param agg: aggregation function default = count
+        :param order_by: list of fields to order by
+        :param graph: return formatted json to use with charts.js
+        :return: json data
+        """
         print('Entered group query')
         print('model name', model_name)
         print('field', field)
@@ -102,21 +113,47 @@ class IndicatorDashboard(http.Controller):
         # if len(group_by) >= 2:
         #     for depth in range(len(group_by) - 1):
         #         for record in labelled_data:
-        if len(group_by) == 2:
+        if not graph:
+            if len(group_by) == 2:
+                for record in labelled_data:
+                    if record[0] in data_json:
+                        data_json[record[0]] |= {
+                            record[1]: {
+                                f'{agg}_{field}': record[2]
+                            }
+                        }
+                    else:
+                        data_json[record[0]] = {
+                            record[1]: {
+                                f'{agg}_{field}': record[2]
+                            }
+                        }
+                print(data_json)
+                return data_json
+        else:
+            labels, datasets = [], []
             for record in labelled_data:
-                if record[0] in data_json:
-                    data_json[record[0]] |= {
-                        record[1]: {
-                            f'{agg}_{field}': record[2]
-                        }
-                    }
-                else:
-                    data_json[record[0]] = {
-                        record[1]: {
-                            f'{agg}_{field}': record[2]
-                        }
+                if record[0] not in labels: labels.append(record[0])
+                dataset = {
+                    'label': record[1] if len(group_by) == 2 else f'{field.capitalize()}:{agg}',
+                    'data': []
                 }
-
-
-        print(data_json)
-        return data_json
+                if dataset not in datasets: datasets.append(dataset)
+            for record in labelled_data:
+                for dataset in datasets:
+                    label = record[1] if len(group_by) == 2 else None
+                    # print(dataset)
+                    # print(label, label and label == dataset['label'])
+                    # print('--------changing--------')
+                    if label == dataset['label']:
+                        dataset['data'].append(int(record[-1]))
+                    elif not label:
+                        dataset['data'].append(int(record[-1]))
+                    else:
+                        dataset['data'].append(0)
+            graph_data = {
+                'labels': labels,
+                'datasets': datasets
+            }
+            print(graph_data)
+            return graph_data
