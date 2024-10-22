@@ -197,7 +197,8 @@ class NewItemDialog extends Component {
                 model_name: this.state.selectedModel,
                 field: this.state.selectedField,
                 group_by: this.state.groupingFields.map(field => field.name),
-                group_by_label: this.state.groupingLabels
+                group_by_label: this.state.groupingLabels,
+                graph: true
             })
             console.log(data);
         }catch (error){
