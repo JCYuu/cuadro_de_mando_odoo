@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class IndicatorDashboard(http.Controller):
-
     @http.route('/awesome_dashboard/statistics', type='json', auth='user')
     def get_statistics(self):
         """
@@ -39,8 +38,23 @@ class IndicatorDashboard(http.Controller):
     @http.route('/awesome_dashboard/modules', type='json', auth='user')
     def get_modules(self) -> list:
         print('called get modules')
-        modules = request.env["ir.module.module"].search([("state", "=", "installed")])
+        modules = request.env["ir.module.module"].search([("state", "=", "installed"), ('application', '=', 'true')])
         return [{'name': module.name, 'desc': module.shortdesc} for module in modules]
+
+    def check_user_access_rights(self, model):
+        print('---checking model---')
+        user = request.env.user
+        access_records = request.env['ir.model.access'].search([('model_id', '=', model.id)])
+        print(model.name)
+        has_access = False
+        for access in access_records:
+            print('entered access')
+            print(access)
+            ext_id = access.group_id.get_external_id()
+            print(ext_id)
+            if not access.group_id and user.has_group(list(ext_id.values())[0]):
+                return False
+        return True
 
     @http.route('/awesome_dashboard/models', type='json', auth='user')
     def get_models(self, module_name: str) -> list:
@@ -48,7 +62,9 @@ class IndicatorDashboard(http.Controller):
         print(module_name)
         model_data_records = request.env['ir.model.data'].search([("module", "=", module_name)])
         model_names = request.env['ir.model'].search([('id', 'in', model_data_records.mapped('res_id'))])
-        return [{'model': model.model, 'model_name': model.name} for model in model_names]
+        model_list = [{'model': model.model, 'model_name': model.name} for model in model_names if self.check_user_access_rights(model)]
+        print(model_list)
+        return model_list
 
     @http.route('/awesome_dashboard/model_fields', type='json', auth='user')
     def get_model_fields(self, model_name: str) -> list:
