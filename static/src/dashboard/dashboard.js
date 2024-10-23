@@ -9,9 +9,9 @@ import { Dialog } from "@web/core/dialog/dialog";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { browser } from "@web/core/browser/browser";
 import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
-import {PieChartCard} from "./pie_chart_card/pie_chart_card";
-
-
+import { PieChartCard } from "./pie_chart_card/pie_chart_card";
+import { BarChartCard } from "./bar_chart_card/bar_chart_card";
+import {NumberCard} from "./number_card/number_card";
 
 
 class IndicatorDashboard extends Component {
@@ -63,11 +63,14 @@ class IndicatorDashboard extends Component {
         console.log(this.state.module_list);
     }
 
-    updateItemsList(data, item_title) {
+    updateItemsList(item_title, data, component) {
+        if (this.addedItems.find((item) => item.id === item_title)){
+            return false
+        }
         this.addedItems.push({
             id: item_title,
             description: "new item description",
-            Component: PieChartCard,
+            Component: component,
             size: 2,
             props: {
                 title: item_title,
@@ -76,7 +79,7 @@ class IndicatorDashboard extends Component {
         })
         console.log("updated items?")
         console.log(this.addedItems);
-
+        return true
     }
 
     openNewItem() {
@@ -130,6 +133,7 @@ class NewItemDialog extends Component {
         this.fields = useState([]);
         this.rpc = useService("rpc");
         this.state = useState({
+            indicatorName: "",
             selectedModule: "",
             selectedModel: "",
             selectedField: "",
@@ -199,7 +203,53 @@ class NewItemDialog extends Component {
     }
 
     async fetchTheDataTest() {
-        try{
+        const isGroupQuery = document.getElementById('group-tab').ariaSelected == 'true';
+        if (isGroupQuery) {
+            try {
+                console.log(this.state.dashboardItemType)
+                let data = await this.rpc('/awesome_dashboard/group_query', {
+                    model_name: this.state.selectedModel,
+                    field: this.state.selectedField,
+                    group_by: this.state.groupingFields.map(field => field.name),
+                    group_by_label: this.state.groupingLabels,
+                    graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
+                    agg: this.state.aggregation,
+                });
+                console.log('fetched data');
+                console.log(data);
+                let components = {'number': NumberCard, 'bar': BarChartCard, 'pie': PieChartCard}
+                let component = components[this.state.dashboardItemType];
+                console.log(component)
+                if (!this.props.updateItems(this.state.indicatorName, data, component)){
+                    alert('Duplicate item');
+                }
+            } catch (error){
+            console.log("This error while testing group query: ", error);
+            }
+        }
+        else {
+            try {
+                console.log(this.state.dashboardItemType)
+                let data = await this.rpc('/awesome_dashboard/indicator_query', {
+                    model_name: this.state.selectedModel,
+                    field: this.state.selectedField,
+                    labels: this.state.labelsField,
+                    graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
+                });
+                let components = {'number': NumberCard, 'bar': BarChartCard, 'pie': PieChartCard}
+                let component = components[this.state.dashboardItemType];
+                console.log('non group query')
+                console.log(component)
+                console.log(data)
+                if (!this.props.updateItems(this.state.indicatorName, data, component)){
+                    alert('Duplicate item');
+                }
+            } catch (error) {
+                console.log("This error while testing single query: ", error);
+            }
+        }
+    }
+       /* try{
             let data = await this.rpc('/awesome_dashboard/group_query', {
                 model_name: this.state.selectedModel,
                 field: this.state.selectedField,
@@ -210,8 +260,8 @@ class NewItemDialog extends Component {
             console.log(data);
         }catch (error){
             console.log("This error while testing query: ", error);
-        }
-    }
+        }*/
+
 
     async onChangeGroups(event) {
         console.log("entered on change");
