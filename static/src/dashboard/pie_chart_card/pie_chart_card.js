@@ -13,8 +13,5 @@ export class PieChartCard extends Component {
         values: {
             type: Object,
         },
-        data: {
-            type: Object,
-        }
     }
 }

@@ -2,6 +2,6 @@
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.BarChartCard" owl="1">
         <t t-esc="props.title"/>
-        <PieChart graph_data="props.values"/>
+        <BarChart graph_data="props.values"/>
     </t>
 </templates>

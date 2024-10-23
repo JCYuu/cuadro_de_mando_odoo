@@ -7,8 +7,6 @@ import { Component, onWillStart, useRef, onMounted, onWillUnmount } from "@odoo/
 export class PieChart extends Component {
     static template = "cuadro_de_mando.PieChart";
     static props = {
-        label: String,
-        data: Object,
         graph_data: Object
     };
 
@@ -26,9 +24,13 @@ export class PieChart extends Component {
     renderChart() {
         // const labels = Object.k0eys(this.props.data);
         // const data = Object.values(this.props.data);
+        console.log('inside pie chart render')
         const labels = this.props.graph_data.labels;
         const datasets = this.props.graph_data.datasets;
+        console.log(labels);
+        console.log(datasets);
         const color = labels.map((_, index) => getColor(index));
+        // datasets['backgroundColor'] = color;
         /*this.chart = new Chart(this.canvasRef.el, {
             type: "pie",
             data: {
