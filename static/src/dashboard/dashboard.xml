@@ -273,9 +273,11 @@
                                     t-on-change="onChangeGroups" class="form-select">
                                 <option value="" selected="true">Select the 1st field to group by</option>
                                 <t t-foreach="fields" t-as="field" t-key="field.name">
-                                    <option t-att-value="field.name"
-                                            t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)"
-                                            t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                                    <t t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
+                                        <t t-if="!field.depends.length">
+                                            <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                                        </t>
+                                    </t>
                                 </t>
                             </select>
                         </div>
