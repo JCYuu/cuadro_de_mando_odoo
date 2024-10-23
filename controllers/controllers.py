@@ -85,7 +85,7 @@ class IndicatorDashboard(http.Controller):
         main_data = request.env[model_name].search([])
         if graph:
             graph_labels = [record[labels] for record in main_data]
-            graph_dataset = {'label': field, 'data': [record[field] for record in main_data]}
+            graph_dataset = [{'label': field, 'data': [record[field] for record in main_data]}]
             return {
                 'labels': graph_labels,
                 'datasets': graph_dataset
@@ -115,6 +115,7 @@ class IndicatorDashboard(http.Controller):
         print('group by', group_by)
         print('group by label', group_by_label)
         print('Order by', order_by)
+        print('graph', graph)
         main_data = request.env[model_name]._read_group([], aggregates=[f'{field}:{agg}'], groupby=[*group_by])
         labelled_data = []
         for index, record in enumerate(main_data):
@@ -138,6 +139,18 @@ class IndicatorDashboard(http.Controller):
                             record[1]: {
                                 f'{agg}_{field}': record[2]
                             }
+                        }
+                print(data_json)
+                return data_json
+            else:
+                for record in labelled_data:
+                    if record[0] in data_json:
+                        data_json[record[0]] |= {
+                            f'{agg}_{field}': record[1]
+                        }
+                    else:
+                        data_json[record[0]] = {
+                            f'{agg}_{field}': record[1]
                         }
                 print(data_json)
                 return data_json
