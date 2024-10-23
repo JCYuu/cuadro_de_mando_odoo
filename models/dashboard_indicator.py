@@ -3,11 +3,13 @@ from odoo import fields, models, api
 class DashboardIndicator(models.Model):
     _name = "dashboard.indicator"
     _description = "An user defined Key Performance Indicator (KPI)"
-
     name = fields.Char("Indicator Name", required=True)
-    module = fields.Char("")
-    model = fields.Char("")
-    graph_type = fields.Selection([("bar", "Bar"), ("pie", "Pie")])
+    model = fields.Char("", required=True)
+    field = fields.Char("", required=True)
+    labels = fields.Char("")
+    graph_type = fields.Char("", required=True)
+    group_query = fields.Boolean(default=False)
+
 
 
     # def _get_installed_modules(self):
