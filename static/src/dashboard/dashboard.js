@@ -27,6 +27,7 @@ class IndicatorDashboard extends Component {
         this.display = {
             controlPanel: {},
         };
+        this.component_types = {'bar': BarChartCard, 'number': NumberCard, 'pie': PieChartCard}
         this.items = registry.category("cuadro_de_mando").getAll();
         this.addedItems = useState([]);
         this.modules = useState({list: []});
@@ -36,8 +37,17 @@ class IndicatorDashboard extends Component {
         console.log("the items");
         console.log(this.items);
         this.fetchModules();
+        console.log(this.state.module_list);
+        this.fetchIndicators();
     }
 
+    async fetchIndicators(){
+        let indicators = await this.rpc('/awesome_dashboard/retrieve_indicator');
+        console.log(indicators);
+        for (const indicator of indicators) {
+            this.updateItemsList(indicator.name, indicator.data, this.component_types[indicator.graph]);
+        }
+    }
     async fetchModules(){
         try{
             let modules = await this.rpc("/awesome_dashboard/modules");
@@ -59,8 +69,7 @@ class IndicatorDashboard extends Component {
 
     }
     mounted(){
-        this.fetchModules();
-        console.log(this.state.module_list);
+
     }
 
     updateItemsList(item_title, data, component) {
@@ -223,6 +232,8 @@ class NewItemDialog extends Component {
                 if (!this.props.updateItems(this.state.indicatorName, data, component)){
                     alert('Duplicate item');
                 }
+                this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
+                                        this.state.dashboardItemType,  undefined, true,  this.state.groupingFields.map(field => field.name), this.state.groupingLabels, this.state.aggregation);
             } catch (error){
             console.log("This error while testing group query: ", error);
             }
@@ -244,6 +255,7 @@ class NewItemDialog extends Component {
                 if (!this.props.updateItems(this.state.indicatorName, data, component)){
                     alert('Duplicate item');
                 }
+                this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, this.state.labelsField);
             } catch (error) {
                 console.log("This error while testing single query: ", error);
             }
@@ -263,6 +275,25 @@ class NewItemDialog extends Component {
         }*/
 
 
+    async createNewIndicator(name, model, field, graph_type, labels="",
+                             group_query=false, group_fields=[], group_labels={}, agg="count"){
+        try {
+            let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
+                "name": name,
+                "model": model,
+                "field": field,
+                "graph_type": graph_type,
+                "labels": labels,
+                "group_query": group_query,
+                "group_fields": group_fields,
+                "group_labels": group_labels,
+                "agg": agg
+            })
+            console.log(new_record)
+        } catch (error) {
+            console.log("Error at creating indicator:\n", error);
+        }
+    }
     async onChangeGroups(event) {
         console.log("entered on change");
         const options = event.target.options;
