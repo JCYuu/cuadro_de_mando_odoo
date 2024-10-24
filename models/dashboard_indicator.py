@@ -3,15 +3,16 @@ from odoo import fields, models, api
 class DashboardIndicator(models.Model):
     _name = "dashboard.indicator"
     _description = "An user defined Key Performance Indicator (KPI)"
-    name = fields.Char("Indicator Name")
+    name = fields.Char("Indicator Name", required=True)
     model = fields.Char("")
     field = fields.Char("")
     labels = fields.Char("")
-    graph_type = fields.Selection([("bar", "Bar"), ("pie", "Pie")])
+    graph_type = fields.Char("")
     group_query = fields.Boolean(default=False)
     group_fields = fields.Text("")
     group_labels = fields.Json()
     agg = fields.Char("")
+    order_by = fields.Char("")
 
     def get_group_fields(self) -> list:
         """Returns a list of this indicator group fields in
