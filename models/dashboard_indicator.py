@@ -3,15 +3,15 @@ from odoo import fields, models, api
 class DashboardIndicator(models.Model):
     _name = "dashboard.indicator"
     _description = "An user defined Key Performance Indicator (KPI)"
-    name = fields.Char("Indicator Name", required=True)
-    model = fields.Char("", required=True)
-    field = fields.Char("", required=True)
+    name = fields.Char("Indicator Name")
+    model = fields.Char("")
+    field = fields.Char("")
     labels = fields.Char("")
-    graph_type = fields.Char("", required=True)
+    graph_type = fields.Selection([("bar", "Bar"), ("pie", "Pie")])
     group_query = fields.Boolean(default=False)
     group_fields = fields.Text("")
     group_labels = fields.Json()
-    agg = fields.Char()
+    agg = fields.Char("")
 
     def get_group_fields(self) -> list:
         """Returns a list of this indicator group fields in
@@ -19,7 +19,7 @@ class DashboardIndicator(models.Model):
 
         Returns:
             list: list of group fields
-        """        
+        """
         return self.group_fields.split(',')
 
 

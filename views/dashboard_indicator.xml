@@ -8,7 +8,6 @@
                     <group>
                         <field name="name"/>
                         <field name="model"/>
-                        <field name="graph_type"/>
                     </group>
                 </sheet>
             </form>
@@ -21,7 +20,6 @@
         <field name="arch" type="xml">
             <tree string="Dashboard Indicators">
                 <field name="name"/>
-                <field name="module"/>
             </tree>
         </field>
     </record>

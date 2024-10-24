@@ -52,7 +52,7 @@ class IndicatorDashboard(http.Controller):
             print(access)
             ext_id = access.group_id.get_external_id()
             print(ext_id)
-            if not access.group_id and user.has_group(list(ext_id.values())[0]):
+            if not (access.group_id and user.has_group(list(ext_id.values())[0])):
                 return False
         return True
 
