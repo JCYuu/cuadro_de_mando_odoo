@@ -3,6 +3,7 @@
 import logging
 import random
 
+import odoo.http
 from odoo import http
 from odoo.http import request
 
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class IndicatorDashboard(http.Controller):
+
     @http.route('/awesome_dashboard/statistics', type='json', auth='user')
     def get_statistics(self):
         """
@@ -37,6 +39,8 @@ class IndicatorDashboard(http.Controller):
 
     @http.route('/awesome_dashboard/modules', type='json', auth='user')
     def get_modules(self) -> list:
+        # print(request.env.user.lang)
+        # print(self.lang)
         print('called get modules')
         modules = request.env["ir.module.module"].search([("state", "=", "installed"), ('application', '=', 'true')])
         return [{'name': module.name, 'desc': module.shortdesc} for module in modules]
@@ -46,6 +50,7 @@ class IndicatorDashboard(http.Controller):
         user = request.env.user
         access_records = request.env['ir.model.access'].search([('model_id', '=', model.id)])
         print(model.name)
+        print(model.model)
         has_access = False
         for access in access_records:
             print('entered access')
@@ -53,7 +58,9 @@ class IndicatorDashboard(http.Controller):
             ext_id = access.group_id.get_external_id()
             print(ext_id)
             if not (access.group_id and user.has_group(list(ext_id.values())[0])):
+                print('No access')
                 return False
+        print('access')
         return True
 
     @http.route('/awesome_dashboard/models', type='json', auth='user')
@@ -62,7 +69,8 @@ class IndicatorDashboard(http.Controller):
         print(module_name)
         model_data_records = request.env['ir.model.data'].search([("module", "=", module_name)])
         model_names = request.env['ir.model'].search([('id', 'in', model_data_records.mapped('res_id'))])
-        model_list = [{'model': model.model, 'model_name': model.name} for model in model_names if self.check_user_access_rights(model)]
+        model_list = [{'model': model.model, 'model_name': model.name} for model in model_names if
+                      self.check_user_access_rights(model)]
         print(model_list)
         return model_list
 
@@ -132,7 +140,10 @@ class IndicatorDashboard(http.Controller):
         print('group by label', group_by_label)
         print('Order by', order_by)
         print('graph', graph)
-        main_data = request.env[model_name]._read_group([], aggregates=[f'{field}:{agg}'], groupby=[*group_by])
+        lang = request.env.user.lang
+        print(lang)
+        main_data = request.env[model_name].with_context(lang=lang)._read_group([], aggregates=[f'{field}:{agg}'],
+                                                                                groupby=[*group_by])
         labelled_data = []
         for index, record in enumerate(main_data):
             labelled_data.append(list(map(lambda item: self.get_relational_label(item, group_by_label), record)))
@@ -197,3 +208,49 @@ class IndicatorDashboard(http.Controller):
             }
             print(graph_data)
             return graph_data
+
+    @http.route('/awesome_dashboard/create_indicator', type='json', auth='user')
+    def create_new_indicator(self, name: str, model: str, field: str, graph_type: str, labels: str = "",
+                             group_query: bool = False, group_fields: list = [], group_labels: dict = {},
+                             agg: str = 'count'):
+        print(locals())
+        created = request.env['dashboard.indicator'].create({
+            'name': name,
+            'model': model,
+            'field': field,
+            'labels': labels,
+            'graph_type': graph_type,
+            'group_query': group_query,
+            'group_fields': ','.join(group_fields) if group_fields else "",
+            'group_labels': group_labels,
+            'agg': agg
+        })
+        print(created)
+        return created
+
+    @http.route('/awesome_dashboard/retrieve_indicator', type='json', auth='user')
+    def retrieve_indicator(self):
+        indicators = request.env['dashboard.indicator'].search([])
+        indicator_list = []
+        for indicator in indicators:
+            is_graph = indicator.graph_type in ['bar', 'line', 'pie']
+            if indicator.group_query:
+                group_by = indicator.get_group_fields()
+                print(group_by)
+                data = self.group_query_indicator(indicator.model, indicator.field, group_by,
+                                                  indicator.group_labels, indicator.agg, graph=is_graph)
+                indicator_list.append({
+                    'name': indicator.name,
+                    'data': data,
+                    'graph': indicator.graph_type
+                })
+            else:
+                data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, is_graph)
+                indicator_list.append({
+                    'name': indicator.name,
+                    'data': data,
+                    'graph': indicator.graph_type
+                })
+        # indicator_list = [{'id': record.id, **{field: record[field] for field in list(record._fields.keys())}} for record in indicators]
+        print(indicator_list)
+        return indicator_list
