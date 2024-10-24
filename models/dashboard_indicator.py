@@ -9,6 +9,18 @@ class DashboardIndicator(models.Model):
     labels = fields.Char("")
     graph_type = fields.Char("", required=True)
     group_query = fields.Boolean(default=False)
+    group_fields = fields.Text("")
+    group_labels = fields.Json()
+    agg = fields.Char()
+
+    def get_group_fields(self) -> list:
+        """Returns a list of this indicator group fields in
+        the form of [group_field1, group_field2, ...]
+
+        Returns:
+            list: list of group fields
+        """        
+        return self.group_fields.split(',')
 
 
 
