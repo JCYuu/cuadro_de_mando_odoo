@@ -274,7 +274,7 @@
                                 <option value="" selected="true">Select the 1st field to group by</option>
                                 <t t-foreach="fields" t-as="field" t-key="field.name">
                                     <t t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
-                                        <t t-if="!field.depends.length">
+                                        <t t-if="field.depends.length &lt; 2">
                                             <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                         </t>
                                     </t>
@@ -288,7 +288,7 @@
                                 <option value="" selected="true">Select the 2nd field to group by</option>
                                 <t t-foreach="fields" t-as="field" t-key="field.name">
                                     <t t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
-                                        <t t-if="!field.depends.length">
+                                        <t t-if="field.depends.length &lt; 2">
                                             <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                         </t>
                                     </t>
