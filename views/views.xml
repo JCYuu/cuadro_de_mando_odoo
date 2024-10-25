@@ -6,7 +6,7 @@
     </record>
 
     <menuitem name="Cuadro de Mando" id="cuadro_de_mando.menu_root" groups="base.group_user" web_icon="cuadro_de_mando,static/description/icon.png"/>
-    <menuitem name="Dashboard" id="cuadro_de_mando.dashboard_menu" parent="cuadro_de_mando.menu_root" action="cuadro_de_mando.dashboard" sequence="1"/>
+    <menuitem name="Dashboard" id="cuadro_de_mando.dashboard_menu" parent="cuadro_de_mando.menu_root" action="cuadro_de_mando.action_dashboard" sequence="1"/>
 <!--    <menuitem name="Indicators" id="awesome_dashboard.dashboard_indicator_menu" parent="your_root_menu" action="awesome_dashboard.dashboard_indicator_action"/>-->
   </data>
 </odoo>

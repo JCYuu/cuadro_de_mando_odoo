@@ -1,1 +1,1 @@
-from . import dashboard_indicator
+from . import dashboard_indicator, dashboard
