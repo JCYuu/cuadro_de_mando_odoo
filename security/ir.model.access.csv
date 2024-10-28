@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_dashboard_indicator,access_dashboard_indicator,model_dashboard_indicator,base.group_user,1,1,1,1
+cuadro_de_mando.access_dashboard_indicator,access_dashboard_indicator,cuadro_de_mando.model_dashboard_indicator,base.group_user,1,1,1,1
+cuadro_de_mando.access_dashboard_dashboard,access_dashboard_dashboard,cuadro_de_mando.model_dashboard_dashboard,base.group_user,1,1,1,1
