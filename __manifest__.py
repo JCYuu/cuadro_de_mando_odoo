@@ -27,7 +27,7 @@
             'cuadro_de_mando/static/src/**/*',
             ('remove', 'cuadro_de_mando/static/src/dashboard/**/*'),
         ],
-        'cuadro_de_mando.dashboard': [
+        'cuadro_de_mando.owl_dashboard': [
             'cuadro_de_mando/static/src/dashboard/**/*'
         ]
 

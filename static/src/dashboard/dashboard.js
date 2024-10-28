@@ -17,6 +17,11 @@ import {NumberCard} from "./number_card/number_card";
 class IndicatorDashboard extends Component {
     static template = "cuadro_de_mando.IndicatorDashboard";
     static components = { Layout, DashboardItem };
+    static props = {
+        params: {
+            type: Object
+        },
+    };
 
     setup() {
         this.action = useService("action");
@@ -39,6 +44,14 @@ class IndicatorDashboard extends Component {
         this.fetchModules();
         console.log(this.state.module_list);
         this.fetchIndicators();
+        console.log("after calling fetch indicators");
+        console.log(this.props);
+        const params = this.props.params;
+        console.log("params", params);
+        console.log("id", this.props.context.active_id);
+        console.log(this.props.params.test_param);
+        const record = params.current_record;
+        console.log("record", record);
     }
 
     async fetchIndicators(){
@@ -68,9 +81,11 @@ class IndicatorDashboard extends Component {
         }*/
 
     }
-    mounted(){
-
-    }
+  /*  onWillMounted(){
+        const params = this.props.params;
+        const record = params.current_record;
+        console.log("record", record);
+    }*/
 
     updateItemsList(item_title, data, component) {
         if (this.addedItems.find((item) => item.id === item_title)){

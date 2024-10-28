@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
-
+    <data>
+        <record model="ir.actions.client" id="dashboard">
+            <field name="name">Dashboard</field>
+            <field name="tag">cuadro_de_mando.owl_dashboard</field>
+            <field name="params" eval="{'current_record': '@self', 'test_param': 'test'}"/>
+        </record>
+        
         <record id="view_dashboard_tree" model="ir.ui.view">
             <field name="name">dashboard.dashboard.tree</field>
             <field name="model">dashboard.dashboard</field>
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <button name="cuadro_de_mando.dashboard" string="Cuadro de Mando" type="object"/>
+                    <button name="cuadro_de_mando.dashboard" string="Ir a indicadores" type="action"/>
                 </tree>
             </field>
         </record>
@@ -20,7 +25,8 @@
                 <form string="Dashboard">
                     <group>
                         <field name="name" widget="char" placeholder="Enter theme name"/>
-                        <field name="indicators" options="{'no_create': True}" />
+                        <button name="cuadro_de_mando.dashboard" string="Indicadores ir a" type="action"/>
+                        <!-- <field name="indicators" options="{'no_create': True}" /> -->
                     </group>
                 </form>
             </field>
@@ -34,4 +40,5 @@
             <field name="view_mode">tree,form</field>
         </record>
     </data>
+
 </odoo>
