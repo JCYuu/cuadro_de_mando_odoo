@@ -47,11 +47,13 @@
                     <option t-att-value="module.name" t-esc="module.desc"></option>
                 </t>
             </select>
+            <t t-call="cuadro_de_mando.dashboard.dashboard.tree"/>
             <t t-set-slot="footer">
                 <button class="btn btn-primary" t-on-click="done">
                     Done
                 </button>
             </t>
+
 
         </Dialog>
     </t>
