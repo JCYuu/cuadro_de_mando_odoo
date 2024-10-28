@@ -83,7 +83,7 @@ class IndicatorDashboard(http.Controller):
         return [model_fields[field] for field in model_fields]
 
     @http.route('/awesome_dashboard/fetch_for_pie_chart', type='json', auth='user')
-    def get_pie_chart_data(self, model_name, labels, field):
+    def get_pie_chart_data(self, model_name: str, labels: str, field: str):
         data = request.env[model_name].search([])
         return {record[labels]: record[field] for record in data}
 
@@ -105,7 +105,6 @@ class IndicatorDashboard(http.Controller):
         print('model name', model_name)
         print('labels', labels)
         print('field', field)
-
         main_data = request.env[model_name].search([])
         if graph:
             graph_labels = [record[labels] for record in main_data]
@@ -118,8 +117,8 @@ class IndicatorDashboard(http.Controller):
             return {record[labels]: record[field] for record in main_data}
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
-    def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = None,
-                              agg: str = 'count', order_by: str = None, graph: bool = False) -> dict:
+    def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = {},
+                              agg: str = 'count', order_by: str = "", graph: bool = False) -> dict:
         """
         Returns the group query for desired field and specified aggregations.
 
