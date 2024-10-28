@@ -32,6 +32,7 @@ class IndicatorDashboard extends Component {
         this.display = {
             controlPanel: {},
         };
+        this.dashboardId = this.props.context.active_id;
         this.component_types = {'bar': BarChartCard, 'number': NumberCard, 'pie': PieChartCard}
         this.items = registry.category("cuadro_de_mando").getAll();
         this.addedItems = useState([]);
@@ -48,14 +49,16 @@ class IndicatorDashboard extends Component {
         console.log(this.props);
         const params = this.props.params;
         console.log("params", params);
-        console.log("id", this.props.context.active_id);
+        console.log("id", this.dashboardId);
         console.log(this.props.params.test_param);
         const record = params.current_record;
         console.log("record", record);
     }
 
     async fetchIndicators(){
-        let indicators = await this.rpc('/awesome_dashboard/retrieve_indicator');
+        let indicators = await this.rpc('/awesome_dashboard/retrieve_indicator', {
+            dashboard_id: this.dashboardId
+        });
         console.log(indicators);
         for (const indicator of indicators) {
             this.updateItemsList(indicator.name, indicator.data, this.component_types[indicator.graph]);
@@ -110,7 +113,8 @@ class IndicatorDashboard extends Component {
         this.dialog.add(NewItemDialog, {
             modules: this.modules.list,
             models: [],
-            updateItems: this.updateItemsList.bind(this)
+            updateItems: this.updateItemsList.bind(this),
+            dashboardId: this.dashboardId
         });
     }
     openConfiguration() {
@@ -149,7 +153,7 @@ class IndicatorDashboard extends Component {
 class NewItemDialog extends Component {
     static template = "cuadro_de_mando.NewItemDialog";
     static components = { Dialog };
-    static props = ["close", "modules", "models", "updateItems"]
+    static props = ["close", "modules", "models", "updateItems", "dashboardId"]
 
     setup(){
         this.modules = useState(this.props.modules);
@@ -294,6 +298,7 @@ class NewItemDialog extends Component {
                              group_query=false, group_fields=[], group_labels={}, agg="count"){
         try {
             let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
+                "dashboard_id": this.props.dashboardId,
                 "name": name,
                 "model": model,
                 "field": field,
