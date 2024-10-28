@@ -209,10 +209,32 @@ class IndicatorDashboard(http.Controller):
             return graph_data
 
     @http.route('/awesome_dashboard/create_indicator', type='json', auth='user')
-    def create_new_indicator(self, name: str, model: str, field: str, graph_type: str, labels: str = "",
+    def create_new_indicator(self, dashboard_id, name: str, model: str, field: str, graph_type: str, labels: str = "",
                              group_query: bool = False, group_fields: list = [], group_labels: dict = {},
                              agg: str = 'count'):
+        """
+
+        :param dashboard_id:
+        :param name:
+        :param model:
+        :param field:
+        :param graph_type:
+        :param labels:
+        :param group_query:
+        :param group_fields:
+        :param group_labels:
+        :param agg:
+        """
         print(locals())
+        created = self._create_new_indicator(name, model, field, graph_type, labels, group_query, group_fields, group_labels, agg)
+        print(dashboard_id)
+        added = request.env['dashboard.dashboard'].add_indicator_to_dashboard(dashboard_id, created.id)
+        print("Added to dashboard", added)
+
+    def _create_new_indicator(self, name: str, model: str, field: str, graph_type: str, labels: str = "",
+                              group_query: bool = False, group_fields: list = [], group_labels: dict = {},
+                              agg: str = 'count'):
+
         created = request.env['dashboard.indicator'].create({
             'name': name,
             'model': model,
@@ -225,11 +247,13 @@ class IndicatorDashboard(http.Controller):
             'agg': agg
         })
         print(created)
+        print(created.name)
         return created
 
     @http.route('/awesome_dashboard/retrieve_indicator', type='json', auth='user')
-    def retrieve_indicator(self):
-        indicators = request.env['dashboard.indicator'].search([])
+    def retrieve_indicator(self, dashboard_id):
+        indicators = request.env['dashboard.dashboard'].search([("id", "=", dashboard_id)]).indicator_ids
+        print(indicators)
         indicator_list = []
         for indicator in indicators:
             is_graph = indicator.graph_type in ['bar', 'line', 'pie']
