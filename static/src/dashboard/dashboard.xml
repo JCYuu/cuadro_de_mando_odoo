@@ -10,7 +10,7 @@
             </t>
 
             <t t-set-slot="control-panel-additional-actions">
-                <button t-on-click="openConfiguration" class="btn p-0 ms-1 border-0">
+                <button t-on-click="openDashboardConfig" class="btn p-0 ms-1 border-0">
                     <i class="fa fa-cog"></i>
                 </button>
             </t>
@@ -47,7 +47,6 @@
                     <option t-att-value="module.name" t-esc="module.desc"></option>
                 </t>
             </select>
-            <t t-call="cuadro_de_mando.dashboard.dashboard.tree"/>
             <t t-set-slot="footer">
                 <button class="btn btn-primary" t-on-click="done">
                     Done
