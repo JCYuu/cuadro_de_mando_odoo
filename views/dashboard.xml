@@ -4,6 +4,7 @@
         <record model="ir.actions.client" id="dashboard">
             <field name="name">Dashboard</field>
             <field name="tag">cuadro_de_mando.owl_dashboard</field>
+            <field name="target">current</field>
             <field name="params" eval="{'current_record': '@self', 'test_param': 'test'}"/>
         </record>
         
