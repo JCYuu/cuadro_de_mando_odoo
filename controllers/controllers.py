@@ -228,8 +228,9 @@ class IndicatorDashboard(http.Controller):
         print(locals())
         created = self._create_new_indicator(name, model, field, graph_type, labels, group_query, group_fields, group_labels, agg)
         print(dashboard_id)
-        added = request.env['dashboard.dashboard'].add_indicator_to_dashboard(dashboard_id, created.id)
-        print("Added to dashboard", added)
+        if dashboard_id:
+            added = request.env['dashboard.dashboard'].add_indicator_to_dashboard(dashboard_id, created.id)
+            print("Added to dashboard", added)
 
     def _create_new_indicator(self, name: str, model: str, field: str, graph_type: str, labels: str = "",
                               group_query: bool = False, group_fields: list = [], group_labels: dict = {},
