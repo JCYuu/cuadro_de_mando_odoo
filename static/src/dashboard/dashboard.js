@@ -8,10 +8,9 @@ import { DashboardItem } from "./dashboard_item/dashboard_item";
 import { Dialog } from "@web/core/dialog/dialog";
 import { CheckBox } from "@web/core/checkbox/checkbox";
 import { browser } from "@web/core/browser/browser";
-import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
 import { PieChartCard } from "./pie_chart_card/pie_chart_card";
 import { BarChartCard } from "./bar_chart_card/bar_chart_card";
-import {NumberCard} from "./number_card/number_card";
+import { NumberCard } from "./number_card/number_card";
 
 
 class IndicatorDashboard extends Component {
@@ -36,14 +35,11 @@ class IndicatorDashboard extends Component {
         this.component_types = {'bar': BarChartCard, 'number': NumberCard, 'pie': PieChartCard}
         this.items = registry.category("cuadro_de_mando").getAll();
         this.addedItems = useState([]);
-        this.modules = useState({list: []});
         this.state = useState({
             disabledItems: browser.localStorage.getItem("disabledDashboardItems")?.split(",") || [],
         });
         console.log("the items");
         console.log(this.items);
-        this.fetchModules();
-        console.log(this.state.module_list);
         this.fetchIndicators();
         console.log("after calling fetch indicators");
         console.log(this.props);
@@ -55,35 +51,29 @@ class IndicatorDashboard extends Component {
         console.log("record", record);
     }
 
+    openDashboardConfig(){
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: "Form config",
+            res_model: "dashboard.dashboard",
+            target: 'new',
+            views: [
+                [false, "form"],
+            ],
+            res_id: this.dashboardId
+        });
+    }
+
     async fetchIndicators(){
         let indicators = await this.rpc('/awesome_dashboard/retrieve_indicator', {
             dashboard_id: this.dashboardId
         });
         console.log(indicators);
         for (const indicator of indicators) {
-            this.updateItemsList(indicator.name, indicator.data, this.component_types[indicator.graph]);
+            this.updateItemsList(indicator.name, indicator.data, indicator.graph);
         }
     }
-    async fetchModules(){
-        try{
-            let modules = await this.rpc("/awesome_dashboard/modules");
-            /*console.log("in fetch")
-            console.log(modules);*/
-            this.modules.list = modules;
-           /* console.log("to print modules.list")
-            console.log(this.modules.list)*/
-        } catch(error){
-            console.error('Error fetching models from module:', error);
-        }
-         /*try {
-            const modules = await this.orm.searchRead("ir.module.module", [["state", "=", "installed"]], ['name', 'shortdesc']);
-            console.log(modules);
-            this.modules.list = modules; // Update state with fetched modules
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }*/
 
-    }
   /*  onWillMounted(){
         const params = this.props.params;
         const record = params.current_record;
@@ -97,7 +87,7 @@ class IndicatorDashboard extends Component {
         this.addedItems.push({
             id: item_title,
             description: "new item description",
-            Component: component,
+            Component: this.component_types[component],
             size: 2,
             props: {
                 title: item_title,
@@ -111,7 +101,6 @@ class IndicatorDashboard extends Component {
 
     openNewItem() {
         this.dialog.add(NewItemDialog, {
-            modules: this.modules.list,
             models: [],
             updateItems: this.updateItemsList.bind(this),
             dashboardId: this.dashboardId
@@ -153,10 +142,12 @@ class IndicatorDashboard extends Component {
 class NewItemDialog extends Component {
     static template = "cuadro_de_mando.NewItemDialog";
     static components = { Dialog };
-    static props = ["close", "modules", "models", "updateItems", "dashboardId"]
+    static props = ["close", "updateItems", "dashboardId"]
 
     setup(){
-        this.modules = useState(this.props.modules);
+        console.log("begin setup()");     
+        console.log("setting up dialog");
+        this.modules = useState([]);
         this.models = useState([]);
         this.fields = useState([]);
         this.rpc = useService("rpc");
@@ -174,6 +165,18 @@ class NewItemDialog extends Component {
             groupingFields: [],
             groupingLabels: {},
         });
+        this.fetchModules();
+        console.log("finished setting up");
+    }
+
+    async fetchModules(){
+        try{
+            let modules = await this.rpc("/awesome_dashboard/modules");
+            this.modules = modules;
+        } catch(error){
+            console.error('Error fetching models from module:', error);
+        }
+
     }
 
     async fetchModels() {
@@ -245,11 +248,10 @@ class NewItemDialog extends Component {
                 });
                 console.log('fetched data');
                 console.log(data);
-                let components = {'number': NumberCard, 'bar': BarChartCard, 'pie': PieChartCard}
-                let component = components[this.state.dashboardItemType];
-                console.log(component)
-                if (!this.props.updateItems(this.state.indicatorName, data, component)){
-                    alert('Duplicate item');
+                if (this.props.updateItems) {
+                    if (!this.props.updateItems(this.state.indicatorName, data, this.dashboardItemType)) {
+                        alert('Duplicate item');
+                    }
                 }
                 this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
                                         this.state.dashboardItemType,  undefined, true,  this.state.groupingFields.map(field => field.name), this.state.groupingLabels, this.state.aggregation);
@@ -266,13 +268,12 @@ class NewItemDialog extends Component {
                     labels: this.state.labelsField,
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
                 });
-                let components = {'number': NumberCard, 'bar': BarChartCard, 'pie': PieChartCard}
-                let component = components[this.state.dashboardItemType];
                 console.log('non group query')
-                console.log(component)
                 console.log(data)
-                if (!this.props.updateItems(this.state.indicatorName, data, component)){
-                    alert('Duplicate item');
+                if (this.props.updateItems){
+                    if (!this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)){
+                        alert('Duplicate item');
+                    }
                 }
                 this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, this.state.labelsField);
             } catch (error) {
@@ -280,25 +281,13 @@ class NewItemDialog extends Component {
             }
         }
     }
-       /* try{
-            let data = await this.rpc('/awesome_dashboard/group_query', {
-                model_name: this.state.selectedModel,
-                field: this.state.selectedField,
-                group_by: this.state.groupingFields.map(field => field.name),
-                group_by_label: this.state.groupingLabels,
-                graph: true
-            })
-            console.log(data);
-        }catch (error){
-            console.log("This error while testing query: ", error);
-        }*/
 
 
     async createNewIndicator(name, model, field, graph_type, labels="",
                              group_query=false, group_fields=[], group_labels={}, agg="count"){
         try {
             let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
-                "dashboard_id": this.props.dashboardId,
+                "dashboard_id": (this.props.dashboardId) ? this.props.dashboardId : "",
                 "name": name,
                 "model": model,
                 "field": field,
@@ -355,26 +344,6 @@ class NewItemDialog extends Component {
                 }
             }
         }
-        /*for (const option of options) {
-            if (option.selected && option.value !== "") {
-                for (const field of this.fields) {
-                    if (option.value == field.name) {
-                        if (field.relation) {
-                            let data = await this.fetchRelationalFieldsData(field.relation);
-                            this.state.groupingFields.push({
-                                'name': option.value,
-                                'description': field.string,
-                                'relation': field.relation,
-                                'data': data
-                            });
-                        }
-                        else {
-                            this.state.groupingFields.push({'name': option.value, 'description': field.string});
-                        }
-                    }
-                }
-            }
-        }*/
     }
      async onChangeGroupsLabel(event, model) {
         console.log('OnChangeGroupLabel')
@@ -390,6 +359,7 @@ class NewItemDialog extends Component {
         }
 
     }
+
 }
 
 class ConfigurationDialog extends Component {
