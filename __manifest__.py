@@ -18,8 +18,8 @@
 
     'data': [
         'security/ir.model.access.csv',
-        'views/dashboard_indicator.xml',
         'views/dashboard.xml',
+        'views/dashboard_indicator.xml',
         'views/views.xml',
     ],
     'assets': {
