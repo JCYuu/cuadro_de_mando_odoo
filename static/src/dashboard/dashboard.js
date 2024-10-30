@@ -3,7 +3,7 @@
 import { Component, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { Layout } from "@web/search/layout";
-import { useService } from "@web/core/utils/hooks";
+import { useService, onMounted } from "@web/core/utils/hooks";
 import { DashboardItem } from "./dashboard_item/dashboard_item";
 import { Dialog } from "@web/core/dialog/dialog";
 import { CheckBox } from "@web/core/checkbox/checkbox";
@@ -49,6 +49,7 @@ class IndicatorDashboard extends Component {
         console.log(this.props.params.test_param);
         const record = params.current_record;
         console.log("record", record);
+
     }
 
     openDashboardConfig(){
@@ -165,9 +166,17 @@ class NewItemDialog extends Component {
             groupingFields: [],
             groupingLabels: {},
         });
-        this.fetchModules();
+
         console.log("finished setting up");
+
+        
+        onMounted(() => {
+            console.log('onMounted');
+            this.fetchModules();
+        });
     }
+
+
 
     async fetchModules(){
         try{
