@@ -3,7 +3,7 @@
     <record model="ir.actions.client" id="indicator">
             <field name="name">New Indicator</field>
             <field name="tag">cuadro_de_mando.NewIndicatorDialog</field>
-            <field name="target">new</field>
+            <field name="target">current</field>
             <field name="params" eval="{'current_record': '@self', 'test_param': 'test'}"/>
     </record>
 
