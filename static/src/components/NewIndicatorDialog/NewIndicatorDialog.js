@@ -9,13 +9,17 @@ import { useService } from "@web/core/utils/hooks";
 import { Component, useSubEnv, useState } from "@odoo/owl";
 
 
-class NewIndicatorDialog extends Component {
+export class NewIndicatorDialog extends Component {
     static template = "cuadro_de_mando.NewIndicatorDialog";
     static props = ["close", "updateItems", "dashboardId", "*"]
 
     setup(){
         console.log("begin setup()");     
         console.log("setting up dialog");
+        console.log(this.props.dashboardId == undefined);
+        this.addButtonText = (this.props.dashboardId != undefined) ? "Add to dashboard" : "Create indicator"
+        console.log(this.addButtonText);
+
         this.modules = useState([]);
         this.models = useState([]);
         this.fields = useState([]);
@@ -35,13 +39,21 @@ class NewIndicatorDialog extends Component {
             groupingLabels: {},
         });
         this.fetchModules();
+        console.log(this.modules);
         console.log("finished setting up");
     }
 
     async fetchModules(){
         try{
-            let modules = await this.rpc("/awesome_dashboard/modules");
-            this.modules = modules;
+            console.log("entered fetching modules");
+            let modules = await this.rpc("/awesome_dashboard/modules").then((value) => {
+                console.log("Promise fulfilled", value);
+                this.modules = value;
+                console.log("this.modules", this.modules);
+            });
+            
+            console.log('fetched');
+            console.log(modules);
         } catch(error){
             console.error('Error fetching models from module:', error);
         }

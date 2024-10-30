@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.NewIndicatorDialog">
-        <div class="container p-2">
-            Configure your new Indicator
+        <div class="card p-2">
+            <h3 class="mb-3">Configure your new Indicator</h3>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single-tab-pane"
@@ -18,14 +18,16 @@
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="single-tab-pane" role="tabpanel" aria-labelledby="single-tab"
                      tabindex="0">
-                    <div class="row p-2"><h1>Single</h1></div>
-                    <div class="row p-2">
-                        <label class="form-label" for="name_input">Indicator name:</label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" aria-label="Name input" aria-describedby="nameInputGroup" placeholder="Name" t-model="state.indicatorName"/>
+                    <div class="row p-3"><h1>Single</h1></div>
+                    <div class="row p-3">
+                        <div class="col p-2">
+                            <label class="form-label" for="name_input">Indicator name:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" aria-label="Name input" aria-describedby="nameInputGroup" placeholder="Name" t-model="state.indicatorName"/>
+                            </div>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="module_selector">Module to retrieve data:</label>
                             <select id="module_selector" t-model="state.selectedModule" t-on-change="fetchModels"
@@ -47,7 +49,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="data_field_selector">Data:</label>
                             <select id="data_field_selector" t-if="state.modelIsSelected" t-model="state.selectedField"
@@ -59,13 +61,6 @@
                                             t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                 </t>
                             </select>
-                            <div class="form-check p-2">
-                                <input class="form-check-input" t-model="state.countField" type="checkbox" value=""
-                                       id="count"/>
-                                <label class="form-check-label" for="count">
-                                     Count
-                                </label>
-                            </div>
                         </div>
                         <div class="col p-2">
                             <label class="form-label" for="label_selector">Graph labels:</label>
@@ -80,7 +75,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="order_by_field_selector">Order by:</label>
                             <select id="order_by_field_selector" t-if="state.modelIsSelected"
@@ -93,7 +88,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="item_type_selector">Indicator type:</label>
                             <t t-set="item_types"
@@ -106,21 +101,18 @@
                             </select>
                         </div>
                     </div>
-                    <t t-set-slot="footer">
-                        <button class="btn btn-primary" t-on-click="fetchTheDataTest">
-                            Add to dashboard
-                        </button>
-                    </t>
                 </div>
                 <div class="tab-pane fade" id="group-tab-pane" role="tabpanel" aria-labelledby="group-tab" tabindex="0">
-                    <div class="row p-2"><h1>Group</h1></div>
-                    <div class="row p-2">
-                        <label class="form-label" for="name_input">Indicator name:</label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" aria-label="Name input" aria-describedby="nameInputGroup" placeholder="Name" t-model="state.indicatorName"/>
+                    <div class="row p-3"><h1>Group</h1></div>
+                    <div class="row p-3">
+                        <div class="col p-2">
+                            <label class="form-label" for="name_input">Indicator name:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" aria-label="Name input" aria-describedby="nameInputGroup" placeholder="Name" t-model="state.indicatorName"/>
+                            </div>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="module_selector">Module to retrieve data:</label>
                             <select id="module_selector" t-model="state.selectedModule" t-on-change="fetchModels"
@@ -154,7 +146,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <label>Aggregation: </label>
                         <div class="col p-2 mx-3">
                             <div class="form-check">
@@ -197,7 +189,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="order_by_field_selector">Order by:</label>
                             <select id="order_by_field_selector" t-if="state.modelIsSelected"
@@ -210,7 +202,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="grouped_fields_selector">Group by first:</label>
                             <select id="grouped_field_selector-1" t-if="state.modelIsSelected"
@@ -240,7 +232,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <t t-foreach="state.groupingFields" t-as="field" t-key="field.name">
                             <div class="col p-2" t-if="field.data">
                                 <label t-att-for="`${field.name}_selector`" class="form-label"><t t-esc="field.description"/>
@@ -257,7 +249,7 @@
                             </div>
                         </t>
                     </div>
-                    <div class="row p-2">
+                    <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="item_type_selector">Indicator type:</label>
                             <t t-set="item_types"
@@ -270,12 +262,10 @@
                             </select>
                         </div>
                     </div>
-                    <t t-set-slot="footer">
-                        <button class="btn btn-primary" t-on-click="fetchTheDataTest">
-                            Add to dashboard
-                        </button>
-                    </t>
                 </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary" t-on-click="fetchTheDataTest" t-esc="addButtonText"/>
             </div>
         </div>
     </t>
