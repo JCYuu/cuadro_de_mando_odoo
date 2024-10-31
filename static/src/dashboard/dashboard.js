@@ -1,9 +1,9 @@
 /** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
+import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { Layout } from "@web/search/layout";
-import { useService, onMounted } from "@web/core/utils/hooks";
+import { useService } from "@web/core/utils/hooks";
 import { DashboardItem } from "./dashboard_item/dashboard_item";
 import { Dialog } from "@web/core/dialog/dialog";
 import { CheckBox } from "@web/core/checkbox/checkbox";
@@ -79,7 +79,7 @@ class IndicatorDashboard extends Component {
         const params = this.props.params;
         const record = params.current_record;
         console.log("record", record);
-    }*/
+    } */
 
     updateItemsList(item_title, data, component) {
         if (this.addedItems.find((item) => item.id === item_title)){
@@ -169,11 +169,18 @@ class NewItemDialog extends Component {
 
         console.log("finished setting up");
 
+        onWillStart(async () => {
+            await this.fetchModules();
+        });
+/* 
+        onWillMounted(() => {
+            this.fetchModules();
+        }); */
         
-        onMounted(() => {
+      /*   onMounted(() => {
             console.log('onMounted');
             this.fetchModules();
-        });
+        }); */
     }
 
 
