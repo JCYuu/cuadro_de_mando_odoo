@@ -6,7 +6,7 @@ import { getDefaultConfig } from "@web/views/view";
 import { useService } from "@web/core/utils/hooks";
 
 
-import { Component, useSubEnv, useState } from "@odoo/owl";
+import { Component, useSubEnv, useState, onWillStart } from "@odoo/owl";
 
 
 export class NewIndicatorDialog extends Component {
@@ -38,19 +38,20 @@ export class NewIndicatorDialog extends Component {
             groupingFields: [],
             groupingLabels: {},
         });
-        this.fetchModules();
-        console.log(this.modules);
+
+        onWillStart(async () => {
+            await this.fetchModules();
+        });
+        
         console.log("finished setting up");
     }
 
     async fetchModules(){
         try{
             console.log("entered fetching modules");
-            let modules = await this.rpc("/awesome_dashboard/modules").then((value) => {
-                console.log("Promise fulfilled", value);
-                this.modules = value;
-                console.log("this.modules", this.modules);
-            });
+            let modules = await this.rpc("/awesome_dashboard/modules");
+
+            this.modules = modules;
             
             console.log('fetched');
             console.log(modules);
