@@ -20,6 +20,7 @@ export class NewIndicatorDialog extends Component {
         this.addButtonText = (this.props.dashboardId != undefined) ? "Add to dashboard" : "Create indicator"
         console.log(this.addButtonText);
 
+        this.actionService = useService("action");
         this.modules = useState([]);
         this.models = useState([]);
         this.fields = useState([]);
@@ -161,6 +162,19 @@ export class NewIndicatorDialog extends Component {
             } catch (error) {
                 console.log("This error while testing single query: ", error);
             }
+        }
+        if (this.props.dashboardId) this.props.close();
+        else {
+            this.actionService.doAction({
+                type: "ir.actions.act_window",
+                name: "Dashboard Indicators",
+                res_model: "dashboard.indicator",
+                target: "current",
+                views: [
+                    [false, "tree"],
+                    [false, "form"],
+                ]
+            })
         }
     }
 
