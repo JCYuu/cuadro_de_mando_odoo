@@ -25,6 +25,7 @@ export class NewIndicatorDialog extends Component {
         this.models = useState([]);
         this.fields = useState([]);
         this.rpc = useService("rpc");
+        this.notificationService = useService("notification");
         this.state = useState({
             indicatorName: "",
             selectedModule: "",
@@ -57,9 +58,17 @@ export class NewIndicatorDialog extends Component {
             console.log('fetched');
             console.log(modules);
         } catch(error){
-            console.error('Error fetching models from module:', error);
+            this.showNotification("Error while fetching modules", true);
+            console.error('Error fetching modules:', error);
         }
 
+    }
+
+    showNotification(message, error){
+        this.notificationService.add(message, {
+            title: (error) ? "Error" : "Success",
+            type: (error) ? "warning" : "success"
+        })
     }
 
     async fetchModels() {
@@ -73,7 +82,8 @@ export class NewIndicatorDialog extends Component {
             /*console.log("this.models");
             console.log(this.models);*/
         }catch(error){
-            console.log("error fetching models: ", error);
+            this.showNotification(`Error fetching models from ${this.selectedModule}`, true);
+            console.log(`Error fetching models from ${this.selectedModule}:` , error);
         }
     }
 
@@ -93,7 +103,8 @@ export class NewIndicatorDialog extends Component {
             this.fields = fields;
             this.state.modelIsSelected = true;
         }catch(error) {
-            console.log("Error retrieving fields: ", error);
+            this.showNotification(`Error retrieving fields from model ${this.selectedModel}`, true);
+            console.log(`Error retrieving fields from model ${this.selectedModel}:`, error);
         }
     }
 
@@ -133,13 +144,15 @@ export class NewIndicatorDialog extends Component {
                 console.log(data);
                 if (this.props.updateItems) {
                     if (!this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)) {
-                        alert('Duplicate item');
+                        this.showNotification('Indicator with this name already exists, try another one', true);
+                        return
                     }
                 }
                 this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
                                         this.state.dashboardItemType,  undefined, true,  this.state.groupingFields.map(field => field.name), this.state.groupingLabels, this.state.aggregation);
             } catch (error){
-            console.log("This error while testing group query: ", error);
+                this.showNotification(`An error ocurred while fetching group data for the indicator`, true);
+                console.log("This error while testing group query: ", error);
             }
         }
         else {
@@ -155,16 +168,22 @@ export class NewIndicatorDialog extends Component {
                 console.log(data)
                 if (this.props.updateItems){
                     if (!this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)){
-                        alert('Duplicate item');
+                        this.showNotification('Indicator with this name already exists, try another one', true);
+                        return 
                     }
                 }
                 this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, this.state.labelsField);
             } catch (error) {
+                this.showNotification(`An error ocurred while fetching single data for the indicator`, true);
                 console.log("This error while testing single query: ", error);
             }
         }
-        if (this.props.dashboardId) this.props.close();
+        if (this.props.dashboardId) {
+            this.showNotification("Succesfully created and added to dashboard", false)
+            this.props.close();
+        }
         else {
+            this.showNotification(`Successfully created ${this.indicatorName}`, false)
             this.actionService.doAction({
                 type: "ir.actions.act_window",
                 name: "Dashboard Indicators",
@@ -196,6 +215,7 @@ export class NewIndicatorDialog extends Component {
             })
             console.log(new_record)
         } catch (error) {
+            this.showNotification(`Server error ocurred while creating the indicator`, true);
             console.log("Error at creating indicator:\n", error);
         }
     }
@@ -251,6 +271,7 @@ export class NewIndicatorDialog extends Component {
             this.state.groupingLabels[model] = event.target.value;
             console.log(this.state.groupingLabels);
         } catch (error) {
+            this.showNotification(`Error in onchangeGroupLabel`, true);
             console.log('error in the group label: ', error);
         }
 
