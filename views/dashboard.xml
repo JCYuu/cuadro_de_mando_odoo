@@ -14,7 +14,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <button name="cuadro_de_mando.dashboard" string="Ir a indicadores" type="action"/>
+                    <button name="cuadro_de_mando.dashboard" string="Abrir tablero" type="action"/>
                 </tree>
             </field>
         </record>
@@ -43,5 +43,4 @@
             <field name="view_mode">tree,form</field>
         </record>
     </data>
-
 </odoo>
