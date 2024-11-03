@@ -21,6 +21,7 @@ export class NewIndicatorDialog extends Component {
         console.log(this.addButtonText);
 
         this.actionService = useService("action");
+        this.ormService = useService("orm");
         this.modules = useState([]);
         this.models = useState([]);
         this.fields = useState([]);
@@ -43,8 +44,7 @@ export class NewIndicatorDialog extends Component {
 
         onWillStart(async () => {
             await this.fetchModules();
-        });
-        
+        });  
         console.log("finished setting up");
     }
 
@@ -127,6 +127,12 @@ export class NewIndicatorDialog extends Component {
 
     }
 
+    async indicatorExists(name){
+        let indicators = await this.ormService.searchRead('dashboard.indicator', [['name', '=', name]], ['name']);
+        console.log(indicators);        
+        return indicators.length > 0; 
+    }
+
     async fetchTheDataTest() {
         const isGroupQuery = document.getElementById('group-tab').ariaSelected == 'true';
         if (isGroupQuery) {
@@ -142,14 +148,17 @@ export class NewIndicatorDialog extends Component {
                 });
                 console.log('fetched data');
                 console.log(data);
-                if (this.props.updateItems) {
-                    if (!this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)) {
-                        this.showNotification('Indicator with this name already exists, try another one', true);
-                        return
-                    }
+                if (await this.indicatorExists(this.state.indicatorName)){
+                    this.showNotification('Indicator with this name already exists, try another one', true);
+                    return
                 }
-                this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
+                else {
+                    if (this.props.updateItems) {
+                        this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType);
+                    }
+                    this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
                                         this.state.dashboardItemType,  undefined, true,  this.state.groupingFields.map(field => field.name), this.state.groupingLabels, this.state.aggregation);
+                }
             } catch (error){
                 this.showNotification(`An error ocurred while fetching group data for the indicator`, true);
                 console.log("This error while testing group query: ", error);
@@ -166,13 +175,16 @@ export class NewIndicatorDialog extends Component {
                 });
                 console.log('non group query')
                 console.log(data)
-                if (this.props.updateItems){
-                    if (!this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)){
-                        this.showNotification('Indicator with this name already exists, try another one', true);
-                        return 
+                if (await this.indicatorExists(this.state.indicatorName)){
+                    this.showNotification('Indicator with this name already exists, try another one', true);
+                    return
+                } 
+                else {
+                    if (this.props.updateItems){
+                        this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)
                     }
+                    this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, this.state.labelsField);
                 }
-                this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, this.state.labelsField);
             } catch (error) {
                 this.showNotification(`An error ocurred while fetching single data for the indicator`, true);
                 console.log("This error while testing single query: ", error);
@@ -183,7 +195,7 @@ export class NewIndicatorDialog extends Component {
             this.props.close();
         }
         else {
-            this.showNotification(`Successfully created ${this.indicatorName}`, false)
+            this.showNotification(`Successfully created ${this.state.indicatorName}`, false)
             this.actionService.doAction({
                 type: "ir.actions.act_window",
                 name: "Dashboard Indicators",
