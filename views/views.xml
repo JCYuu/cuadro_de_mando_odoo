@@ -6,9 +6,10 @@
   </record> -->
 
     <menuitem name="Cuadro de Mando" id="cuadro_de_mando.menu_root" groups="base.group_user" web_icon="cuadro_de_mando,static/description/icon.png"/>
-    <menuitem name="Dashboard" id="cuadro_de_mando.dashboard_menu" parent="cuadro_de_mando.menu_root" action="action_dashboard"/>
-    <menuitem name="Indicators" id="menu_dashboard_indicator" action="action_dashboard_indicator" parent="cuadro_de_mando.menu_root"/>
-    <!-- <menuitem name="Dashboard" id="cuadro_de_mando.dashboard_menu" parent="cuadro_de_mando.menu_root" action="action_dashboard" sequence="1"/> -->
-<!--    <menuitem name="Indicators" id="awesome_dashboard.dashboard_indicator_menu" parent="your_root_menu" action="awesome_dashboard.dashboard_indicator_action"/>-->
+    <menuitem name="Tableros" id="cuadro_de_mando.dashboard_menu" parent="cuadro_de_mando.menu_root" action="action_dashboard"/>
+    <menuitem name="Indicadores" id="cuadro_de_mando.indicator_menu" parent="cuadro_de_mando.menu_root"/>
+    <menuitem name="Lista de Indicadores" id="menu_dashboard_indicator" action="action_dashboard_indicator" parent="cuadro_de_mando.indicator_menu"/>
+    <menuitem name="Crear indicador" id="cuadro_de_mando.new_indicator" action="cuadro_de_mando.indicator" parent="cuadro_de_mando.indicator_menu"/>
+    
   </data>
 </odoo>
