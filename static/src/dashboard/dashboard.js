@@ -82,9 +82,6 @@ class IndicatorDashboard extends Component {
     }*/
 
     updateItemsList(item_title, data, component) {
-        if (this.addedItems.find((item) => item.id === item_title)){
-            return false
-        }
         this.addedItems.push({
             id: item_title,
             description: "new item description",
