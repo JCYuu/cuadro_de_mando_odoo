@@ -47,10 +47,10 @@ class IndicatorDashboard(http.Controller):
 
     def check_user_access_rights(self, model):
         print('---checking model---')
+        print(model)
         user = request.env.user
         access_records = request.env['ir.model.access'].search([('model_id', '=', model.id)])
-        print(model.name)
-        print(model.model)
+        print(access_records)
         has_access = False
         for access in access_records:
             print('entered access')
@@ -257,24 +257,25 @@ class IndicatorDashboard(http.Controller):
         print(indicators)
         indicator_list = []
         for indicator in indicators:
-            is_graph = indicator.graph_type in ['bar', 'line', 'pie']
-            if indicator.group_query:
-                group_by = indicator.get_group_fields()
-                print(group_by)
-                data = self.group_query_indicator(indicator.model, indicator.field, group_by,
-                                                  indicator.group_labels, indicator.agg, graph=is_graph)
-                indicator_list.append({
-                    'name': indicator.name,
-                    'data': data,
-                    'graph': indicator.graph_type
-                })
-            else:
-                data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, is_graph)
-                indicator_list.append({
-                    'name': indicator.name,
-                    'data': data,
-                    'graph': indicator.graph_type
-                })
+            if self.check_user_access_rights(request.env[indicator.model]):
+                is_graph = indicator.graph_type in ['bar', 'line', 'pie']
+                if indicator.group_query:
+                    group_by = indicator.get_group_fields()
+                    print(group_by)
+                    data = self.group_query_indicator(indicator.model, indicator.field, group_by,
+                                                    indicator.group_labels, indicator.agg, graph=is_graph)
+                    indicator_list.append({
+                        'name': indicator.name,
+                        'data': data,
+                        'graph': indicator.graph_type
+                    })
+                else:
+                    data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, is_graph)
+                    indicator_list.append({
+                        'name': indicator.name,
+                        'data': data,
+                        'graph': indicator.graph_type
+                    })
         # indicator_list = [{'id': record.id, **{field: record[field] for field in list(record._fields.keys())}} for record in indicators]
         print(indicator_list)
         return indicator_list
