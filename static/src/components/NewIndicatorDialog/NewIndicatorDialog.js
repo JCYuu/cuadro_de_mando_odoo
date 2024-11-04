@@ -25,6 +25,7 @@ export class NewIndicatorDialog extends Component {
         this.modules = useState([]);
         this.models = useState([]);
         this.fields = useState([]);
+        this.selectableFields = useState([]);
         this.rpc = useService("rpc");
         this.notificationService = useService("notification");
         this.state = useState({
@@ -33,8 +34,9 @@ export class NewIndicatorDialog extends Component {
             selectedModel: "",
             selectedField: "",
             labelsField: "",
-            aggregation: 'count',
+            aggregation: "count",
             orderByField: "",
+            order: "asc",
             dashboardItemType: "",
             moduleIsSelected: false,
             modelIsSelected: false,
@@ -64,6 +66,20 @@ export class NewIndicatorDialog extends Component {
 
     }
 
+    changeSelectableFields(){
+        if (['avg', 'sum', 'max', 'min'].includes(this.state.aggregation)){
+            this.selectableFields = this.fields.filter((field) => ['integer', 'float', 'monetary'].includes(field.type));
+        }
+        else {
+            this.selectableFields = this.fields.filter((field) => field.name == "id");
+        }
+        if (this.state.modelIsSelected){
+            this.state.modelIsSelected = false;
+            this.state.modelIsSelected = true;
+        }
+        console.log("selectable fields", this.selectableFields);
+    }
+
     showNotification(message, error){
         this.notificationService.add(message, {
             title: (error) ? "Error" : "Success",
@@ -87,12 +103,19 @@ export class NewIndicatorDialog extends Component {
         }
     }
 
+    changeOrder(event, order){
+        if (event.target.checked){
+            this.state.order = order;
+        }
+    }
+
     changeAggregation(event, agg) {
         console.log(event);
         if (event.target.checked) {
             this.state.aggregation = agg;
             console.log(this.state.aggregation);
         }
+        this.changeSelectableFields();
     }
     async fetchModelFields() {
         this.state.modelIsSelected = false;
@@ -101,6 +124,7 @@ export class NewIndicatorDialog extends Component {
             let fields = await this.rpc("/awesome_dashboard/model_fields", {model_name: this.state.selectedModel});
             console.log(fields);
             this.fields = fields;
+            this.changeSelectableFields();
             this.state.modelIsSelected = true;
         }catch(error) {
             this.showNotification(`Error retrieving fields from model ${this.selectedModel}`, true);
@@ -145,6 +169,7 @@ export class NewIndicatorDialog extends Component {
                     group_by_label: this.state.groupingLabels,
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
                     agg: this.state.aggregation,
+                    order_by: this.state.order
                 });
                 console.log('fetched data');
                 console.log(data);
@@ -171,6 +196,7 @@ export class NewIndicatorDialog extends Component {
                     model_name: this.state.selectedModel,
                     field: this.state.selectedField,
                     labels: this.state.labelsField,
+                    order_by: (this.state.orderByField) ? `${this.state.orderByField} ${order}` : "",
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
                 });
                 console.log('non group query')
