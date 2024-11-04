@@ -92,7 +92,7 @@ class IndicatorDashboard(http.Controller):
         return item[labels[item_type]] if item_type in labels.keys() else item
 
     @http.route('/awesome_dashboard/indicator_query', type='json', auth='user')
-    def query_indicator_data(self, model_name: str, labels: str, field: str, graph: bool = False) -> dict:
+    def query_indicator_data(self, model_name: str, labels: str, field: str, order_by: str = "", graph: bool = False) -> dict:
         """
         Return query data for specified model using labels as data identifiers.
         
@@ -105,7 +105,7 @@ class IndicatorDashboard(http.Controller):
         print('model name', model_name)
         print('labels', labels)
         print('field', field)
-        main_data = request.env[model_name].search([])
+        main_data = request.env[model_name].search([], order=order_by if order_by else None)
         if graph:
             graph_labels = [record[labels] for record in main_data]
             graph_dataset = [{'label': field, 'data': [record[field] for record in main_data]}]
@@ -140,6 +140,7 @@ class IndicatorDashboard(http.Controller):
         print('Order by', order_by)
         print('graph', graph)
         lang = request.env.user.lang
+        order = {"asc": False, "desc": True}
         print(lang)
         main_data = request.env[model_name].with_context(lang=lang)._read_group([], aggregates=[f'{field}:{agg}'],
                                                                                 groupby=[*group_by])
@@ -147,6 +148,9 @@ class IndicatorDashboard(http.Controller):
         for index, record in enumerate(main_data):
             labelled_data.append(list(map(lambda item: self.get_relational_label(item, group_by_label), record)))
         print(labelled_data)
+        if order_by in order.keys():
+            labelled_data = list(sorted(labelled_data, key=lambda item: item[-1], reverse=order[order_by]))
+            print(labelled_data)
         data_json = dict()
         # if len(group_by) >= 2:
         #     for depth in range(len(group_by) - 1):
@@ -263,14 +267,14 @@ class IndicatorDashboard(http.Controller):
                     group_by = indicator.get_group_fields()
                     print(group_by)
                     data = self.group_query_indicator(indicator.model, indicator.field, group_by,
-                                                    indicator.group_labels, indicator.agg, graph=is_graph)
+                                                    indicator.group_labels, indicator.agg, graph=is_graph, order_by=indicator.order_by)
                     indicator_list.append({
                         'name': indicator.name,
                         'data': data,
                         'graph': indicator.graph_type
                     })
                 else:
-                    data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, is_graph)
+                    data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.order_by, is_graph)
                     indicator_list.append({
                         'name': indicator.name,
                         'data': data,
