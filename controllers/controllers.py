@@ -48,20 +48,26 @@ class IndicatorDashboard(http.Controller):
     def check_user_access_rights(self, model):
         print('---checking model---')
         print(model)
+        print("model name ", model.name)
         user = request.env.user
         access_records = request.env['ir.model.access'].search([('model_id', '=', model.id)])
         print(access_records)
-        has_access = False
+        has_access = True
         for access in access_records:
             print('entered access')
             print(access)
             ext_id = access.group_id.get_external_id()
             print(ext_id)
             if not (access.group_id and user.has_group(list(ext_id.values())[0])):
-                print('No access')
-                return False
+                print(f'No access to group {list(ext_id.values())[0]}')
+                # return False
+                has_access = False
+            else:
+                has_access = True
+            print(has_access)
         print('access')
-        return True
+        # return True
+        return has_access
 
     @http.route('/awesome_dashboard/models', type='json', auth='user')
     def get_models(self, module_name: str) -> list:
@@ -139,6 +145,7 @@ class IndicatorDashboard(http.Controller):
         print('group by label', group_by_label)
         print('Order by', order_by)
         print('graph', graph)
+        field_name = request.env[model_name].fields_get([field])[field]['string']
         lang = request.env.user.lang
         order = {"asc": False, "desc": True}
         print(lang)
@@ -189,7 +196,7 @@ class IndicatorDashboard(http.Controller):
             for record in labelled_data:
                 if record[0] not in labels: labels.append(record[0])
                 dataset = {
-                    'label': record[1] if len(group_by) == 2 else f'{field.capitalize()}:{agg}',
+                    'label': record[1] if len(group_by) == 2 else f'{field_name}:{agg}',
                     'data': []
                 }
                 if dataset not in datasets: datasets.append(dataset)
@@ -261,13 +268,16 @@ class IndicatorDashboard(http.Controller):
         print(indicators)
         indicator_list = []
         for indicator in indicators:
-            if self.check_user_access_rights(request.env[indicator.model]):
+            print(indicator.name)
+            print(request.env['ir.model'].search([('model', '=', indicator.model)]))
+            if self.check_user_access_rights(request.env['ir.model'].search([('model', '=', indicator.model)])):
                 is_graph = indicator.graph_type in ['bar', 'line', 'pie']
                 if indicator.group_query:
                     group_by = indicator.get_group_fields()
                     print(group_by)
+                    print('indicator labels: ', indicator.group_labels)
                     data = self.group_query_indicator(indicator.model, indicator.field, group_by,
-                                                    indicator.group_labels, indicator.agg, graph=is_graph, order_by=indicator.order_by)
+                                                    indicator.group_labels if indicator.group_labels else {}, indicator.agg, graph=is_graph, order_by=indicator.order_by)
                     indicator_list.append({
                         'name': indicator.name,
                         'data': data,
