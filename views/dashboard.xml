@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <record model="ir.actions.client" id="dashboard">
-            <field name="name">Dashboard</field>
+            <field name="name">Tablero</field>
             <field name="tag">cuadro_de_mando.owl_dashboard</field>
             <field name="target">current</field>
             <field name="params" eval="{'current_record': '@self', 'test_param': 'test'}"/>
@@ -38,7 +38,7 @@
 
 
         <record id="action_dashboard" model="ir.actions.act_window">
-            <field name="name">Dashboards</field>
+            <field name="name">Tableros</field>
             <field name="res_model">dashboard.dashboard</field>
             <field name="view_mode">tree,form</field>
         </record>

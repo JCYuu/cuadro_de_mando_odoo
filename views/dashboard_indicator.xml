@@ -1,7 +1,7 @@
 <odoo>
 
     <record model="ir.actions.client" id="indicator">
-            <field name="name">New Indicator</field>
+            <field name="name">Nuevo Indicador</field>
             <field name="tag">cuadro_de_mando.NewIndicatorDialog</field>
             <field name="target">current</field>
             <field name="params" eval="{'current_record': '@self', 'test_param': 'test'}"/>
@@ -35,7 +35,7 @@
     </record>
 
     <record id="action_dashboard_indicator" model="ir.actions.act_window">
-        <field name="name">Dashboard Indicators</field>
+        <field name="name">Indicadores</field>
         <field name="res_model">dashboard.indicator</field>
         <field name="view_mode">tree,form</field>
     </record>
