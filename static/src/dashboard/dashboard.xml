@@ -3,18 +3,15 @@
 
     <t t-name="cuadro_de_mando.IndicatorDashboard">
         <Layout display="display" className="'o_dashboard overflow-auto h-100 container-fluid'">
-            <t t-set-slot="layout-buttons">
-                <button class="btn btn-primary" t-on-click="openCustomerView">Customers</button>
-                <button class="btn btn-primary" t-on-click="openLeads">Leads</button>
-                <button class="btn btn-primary" t-on-click="openNewItem">New item</button>
+            <t t-set-slot="layout-buttons"> 
+                <h2 class="my-auto pe-3" t-esc="dashboardName"/>               
+                <button class="btn btn-primary me-3" t-on-click="openNewItem">New item</button>
             </t>
-
             <t t-set-slot="control-panel-additional-actions">
                 <button t-on-click="openDashboardConfig" class="btn p-0 ms-1 border-0">
                     <i class="fa fa-cog"></i>
                 </button>
             </t>
-
 
             <div class="d-flex flex-wrap" t-if="statistics.isReady">
                 <t t-foreach="items" t-as="item" t-key="item.id">

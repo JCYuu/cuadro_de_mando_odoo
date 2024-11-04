@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
+import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { Layout } from "@web/search/layout";
 import { useService } from "@web/core/utils/hooks";
@@ -32,6 +32,7 @@ class IndicatorDashboard extends Component {
         this.display = {
             controlPanel: {},
         };
+        this.dashboardName = "";
         this.dashboardId = this.props.context.active_id;
         this.component_types = {'bar': BarChartCard, 'number': NumberCard, 'pie': PieChartCard}
         this.items = registry.category("cuadro_de_mando").getAll();
@@ -50,6 +51,12 @@ class IndicatorDashboard extends Component {
         console.log(this.props.params.test_param);
         const record = params.current_record;
         console.log("record", record);
+
+        onWillStart(async () => {
+            let dashboard = await this.orm.searchRead('dashboard.dashboard', [['id', '=', this.dashboardId]], ['name']);
+            this.dashboardName = dashboard[0].name;
+            console.log(this.dashboardName);
+        })
     }
 
     openDashboardConfig(){
