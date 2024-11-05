@@ -59,7 +59,7 @@ class IndicatorDashboard(http.Controller):
             ext_id = access.group_id.get_external_id()
             print(ext_id)
             if not (access.group_id and user.has_group(list(ext_id.values())[0])):
-                print(f'No access to group {list(ext_id.values())[0]}')
+                # print(f'No access to group {list(ext_id.values())[0]}')
                 # return False
                 has_access = False
             else:
@@ -159,9 +159,6 @@ class IndicatorDashboard(http.Controller):
             labelled_data = list(sorted(labelled_data, key=lambda item: item[-1], reverse=order[order_by]))
             print(labelled_data)
         data_json = dict()
-        # if len(group_by) >= 2:
-        #     for depth in range(len(group_by) - 1):
-        #         for record in labelled_data:
         if not graph:
             if len(group_by) == 2:
                 for record in labelled_data:
