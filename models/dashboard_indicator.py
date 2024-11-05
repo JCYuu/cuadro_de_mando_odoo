@@ -4,6 +4,10 @@ from odoo import fields, models
 class DashboardIndicator(models.Model):
     _name = "dashboard.indicator"
     _description = "An user defined Key Performance Indicator (KPI)"
+    _sql_constraints = [
+        ('unique_dashboard_indicator', 'UNIQUE (LOWER(name))', "There can't be two indicators with the same name")
+    ]
+    
     name = fields.Char("Indicador", required=True)
     model = fields.Char("Modelo")
     field = fields.Char("")
