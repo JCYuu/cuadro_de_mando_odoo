@@ -11,6 +11,7 @@ import { browser } from "@web/core/browser/browser";
 import { PieChartCard } from "./pie_chart_card/pie_chart_card";
 import { BarChartCard } from "./bar_chart_card/bar_chart_card";
 import { NumberCard } from "./number_card/number_card";
+import { LineChartCard } from "./line_chart_card/line_chart_card";
 import { NewIndicatorDialog } from "../components/NewIndicatorDialog/NewIndicatorDialog";
 
 
@@ -34,7 +35,7 @@ class IndicatorDashboard extends Component {
         };
         this.dashboardName = "";
         this.dashboardId = this.props.context.active_id;
-        this.component_types = {'bar': BarChartCard, 'number': NumberCard, 'pie': PieChartCard}
+        this.component_types = {'bar': BarChartCard, 'number': NumberCard, 'pie': PieChartCard, 'line': LineChartCard}
         this.items = registry.category("cuadro_de_mando").getAll();
         this.addedItems = useState([]);
         this.state = useState({
