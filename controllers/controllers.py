@@ -120,7 +120,13 @@ class IndicatorDashboard(http.Controller):
                 'datasets': graph_dataset
             }
         else:
-            return {record[labels]: record[field] for record in main_data}
+            data_json = {record[labels]: record[field] for record in main_data}
+            fields_data = self.get_model_fields(model_name)
+            field_strings = request.env[model_name].fields_get([field, labels], ['string'])
+            data_json['field'] = field_strings[field]['string']
+            data_json['labels'] = field_strings[labels]['string']
+            print(data_json)
+            return data_json
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
     def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = {},
@@ -174,6 +180,7 @@ class IndicatorDashboard(http.Controller):
                                 f'{agg}_{field}': record[2]
                             }
                         }
+                    data_json['groups'] = 2
                 print(data_json)
                 return data_json
             else:
@@ -186,6 +193,7 @@ class IndicatorDashboard(http.Controller):
                         data_json[record[0]] = {
                             f'{agg}_{field}': record[1]
                         }
+                    data_json['groups'] = 1
                 print(data_json)
                 return data_json
         else:
@@ -267,26 +275,29 @@ class IndicatorDashboard(http.Controller):
         for indicator in indicators:
             print(indicator.name)
             print(request.env['ir.model'].search([('model', '=', indicator.model)]))
-            if self.check_user_access_rights(request.env['ir.model'].search([('model', '=', indicator.model)])):
-                is_graph = indicator.graph_type in ['bar', 'line', 'pie']
-                if indicator.group_query:
-                    group_by = indicator.get_group_fields()
-                    print(group_by)
-                    print('indicator labels: ', indicator.group_labels)
-                    data = self.group_query_indicator(indicator.model, indicator.field, group_by,
-                                                    indicator.group_labels if indicator.group_labels else {}, indicator.agg, graph=is_graph, order_by=indicator.order_by)
-                    indicator_list.append({
-                        'name': indicator.name,
-                        'data': data,
-                        'graph': indicator.graph_type
-                    })
-                else:
-                    data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.order_by, is_graph)
-                    indicator_list.append({
-                        'name': indicator.name,
-                        'data': data,
-                        'graph': indicator.graph_type
-                    })
+            try:
+                if self.check_user_access_rights(request.env['ir.model'].search([('model', '=', indicator.model)])):
+                    is_graph = indicator.graph_type in ['bar', 'line', 'pie']
+                    if indicator.group_query:
+                        group_by = indicator.get_group_fields()
+                        print(group_by)
+                        print('indicator labels: ', indicator.group_labels)
+                        data = self.group_query_indicator(indicator.model, indicator.field, group_by,
+                                                        indicator.group_labels if indicator.group_labels else {}, indicator.agg, graph=is_graph, order_by=indicator.order_by)
+                        indicator_list.append({
+                            'name': indicator.name,
+                            'data': data,
+                            'graph': indicator.graph_type
+                        })
+                    else:
+                        data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.order_by, is_graph)
+                        indicator_list.append({
+                            'name': indicator.name,
+                            'data': data,
+                            'graph': indicator.graph_type
+                        })
+            except KeyError:
+                continue
         # indicator_list = [{'id': record.id, **{field: record[field] for field in list(record._fields.keys())}} for record in indicators]
         print(indicator_list)
         return indicator_list
