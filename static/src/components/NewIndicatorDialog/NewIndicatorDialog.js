@@ -34,12 +34,14 @@ export class NewIndicatorDialog extends Component {
             selectedModel: "",
             selectedField: "",
             labelsField: "",
+            labelsRelationFields: [],
             aggregation: "count",
             orderByField: "",
             order: "asc",
             dashboardItemType: "",
             moduleIsSelected: false,
             modelIsSelected: false,
+            labelIsSelected: false,
             groupingFields: [],
             groupingLabels: {},
         });
@@ -132,6 +134,7 @@ export class NewIndicatorDialog extends Component {
         }
     }
 
+
     async fetchRelationalFieldsData(model) {
         let data = await this.rpc("/awesome_dashboard/model_fields", {model_name: model});
         console.log(model);
@@ -196,7 +199,7 @@ export class NewIndicatorDialog extends Component {
                     model_name: this.state.selectedModel,
                     field: this.state.selectedField,
                     labels: this.state.labelsField,
-                    order_by: (this.state.orderByField) ? `${this.state.orderByField} ${order}` : "",
+                    order_by: (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : "",
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
                 });
                 console.log('non group query')
@@ -214,6 +217,7 @@ export class NewIndicatorDialog extends Component {
             } catch (error) {
                 this.showNotification(`An error ocurred while fetching single data for the indicator`, true);
                 console.log("This error while testing single query: ", error);
+                return;
             }
         }
         if (this.props.dashboardId) {
@@ -257,6 +261,23 @@ export class NewIndicatorDialog extends Component {
             console.log("Error at creating indicator:\n", error);
         }
     }
+    
+    async onChangeLabels() {
+        console.log('entered change labels');
+        
+        this.state.labelIsSelected = false;
+        this.state.labelsRelationFields = [];
+        for (const field of this.fields) {
+            if (field.name == this.state.labelsField && field.relation) {
+                let data = await this.fetchRelationalFieldsData(field.relation);
+                this.state.labelsRelationFields = data;
+                console.log(this.state.labelsRelationFields);
+                
+            }
+        }
+        this.state.labelIsSelected = true;
+    }
+
     async onChangeGroups(event) {
         console.log("entered on change");
         const options = event.target.options;
