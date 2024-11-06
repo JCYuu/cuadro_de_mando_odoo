@@ -90,7 +90,12 @@ class IndicatorDashboard extends Component {
     }*/
 
     updateItemsList(item_title, data, component) {
-        this.addedItems.push({
+        if (component == "number"){
+            console.log("is a numbercard");
+            
+        }
+        else {
+            this.addedItems.push({
             id: item_title,
             description: "new item description",
             Component: this.component_types[component],
@@ -99,7 +104,8 @@ class IndicatorDashboard extends Component {
                 title: item_title,
                 values: data
             }
-        })
+        });
+        }
         console.log("updated items?")
         console.log(this.addedItems);
         return true
