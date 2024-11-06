@@ -76,7 +76,7 @@
                         </div>
                         <div class="col p-2" t-if="state.labelsRelationFields.length > 0">
                             <label class="form-label" for="label_selector">Graph labels:</label>
-                            <select id="label_selector" t-if="state.modelIsSelected" t-model="state.labelsField"
+                            <select id="label_selector" t-if="state.modelIsSelected" t-model="state.labelIdentifier"
                                     class="form-select">
                                 <option value="" selected="true">Select identifier for dataset label</option>
                                 <t t-foreach="state.labelsRelationFields" t-as="field" t-key="field.name">

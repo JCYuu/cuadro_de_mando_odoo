@@ -18,6 +18,7 @@ class DashboardIndicator(models.Model):
     group_labels = fields.Json()
     agg = fields.Char("")
     order_by = fields.Char("")
+    label_identifier = fields.Char("")
     dashboard_ids = fields.Many2many(comodel_name="dashboard.dashboard", string="Tableros con este indicador:")
 
     def get_group_fields(self) -> list:

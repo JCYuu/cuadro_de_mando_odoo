@@ -35,6 +35,7 @@ export class NewIndicatorDialog extends Component {
             selectedField: "",
             labelsField: "",
             labelsRelationFields: [],
+            labelIdentifier: "",
             aggregation: "count",
             orderByField: "",
             order: "asc",
@@ -185,7 +186,8 @@ export class NewIndicatorDialog extends Component {
                         this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType);
                     }
                     this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
-                                        this.state.dashboardItemType,  undefined, true,  this.state.groupingFields.map(field => field.name), this.state.groupingLabels, this.state.aggregation);
+                                        this.state.dashboardItemType,  undefined, true,
+                                          this.state.groupingFields.map(field => field.name), this.state.groupingLabels, this.state.aggregation, this.state.order);
                 }
             } catch (error){
                 this.showNotification(`An error ocurred while fetching group data for the indicator`, true);
@@ -201,6 +203,7 @@ export class NewIndicatorDialog extends Component {
                     labels: this.state.labelsField,
                     order_by: (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : "",
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
+                    label_identifier: this.state.labelIdentifier,
                 });
                 console.log('non group query')
                 console.log(data)
@@ -212,7 +215,9 @@ export class NewIndicatorDialog extends Component {
                     if (this.props.updateItems){
                         this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)
                     }
-                    this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, this.state.labelsField);
+                    this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, 
+                                    this.state.labelsField, undefined, undefined, undefined, undefined,
+                                     (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined, this.state.labelIdentifier);
                 }
             } catch (error) {
                 this.showNotification(`An error ocurred while fetching single data for the indicator`, true);
@@ -241,7 +246,7 @@ export class NewIndicatorDialog extends Component {
 
 
     async createNewIndicator(name, model, field, graph_type, labels="",
-                                group_query=false, group_fields=[], group_labels={}, agg="count"){
+                                group_query=false, group_fields=[], group_labels={}, agg="count", order_by="", label_identifier=""){
         try {
             let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
                 "dashboard_id": (this.props.dashboardId) ? this.props.dashboardId : "",
@@ -253,7 +258,9 @@ export class NewIndicatorDialog extends Component {
                 "group_query": group_query,
                 "group_fields": group_fields,
                 "group_labels": group_labels,
-                "agg": agg
+                "agg": agg,
+                "order_by": order_by,
+                "label_identifier": label_identifier,
             })
             console.log(new_record)
         } catch (error) {

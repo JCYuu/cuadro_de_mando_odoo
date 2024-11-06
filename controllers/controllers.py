@@ -98,7 +98,7 @@ class IndicatorDashboard(http.Controller):
         return item[labels[item_type]] if item_type in labels.keys() else item
 
     @http.route('/awesome_dashboard/indicator_query', type='json', auth='user')
-    def query_indicator_data(self, model_name: str, labels: str, field: str, order_by: str = "", graph: bool = False) -> dict:
+    def query_indicator_data(self, model_name: str, labels: str, field: str, order_by: str = "", graph: bool = False, label_identifier: str = "") -> dict:
         """
         Return query data for specified model using labels as data identifiers.
         
@@ -113,14 +113,14 @@ class IndicatorDashboard(http.Controller):
         print('field', field)
         main_data = request.env[model_name].search([], order=order_by if order_by else None)
         if graph:
-            graph_labels = [record[labels] for record in main_data]
+            graph_labels = [record[labels] if not label_identifier else record[labels][label_identifier] for record in main_data]
             graph_dataset = [{'label': field, 'data': [record[field] for record in main_data]}]
             return {
                 'labels': graph_labels,
                 'datasets': graph_dataset
             }
         else:
-            data_json = {record[labels]: record[field] for record in main_data}
+            data_json = {record[labels] if not label_identifier else record[labels][label_identifier]: record[field] for record in main_data}
             fields_data = self.get_model_fields(model_name)
             field_strings = request.env[model_name].fields_get([field, labels], ['string'])
             data_json['field'] = field_strings[field]['string']
@@ -227,7 +227,7 @@ class IndicatorDashboard(http.Controller):
     @http.route('/awesome_dashboard/create_indicator', type='json', auth='user')
     def create_new_indicator(self, dashboard_id, name: str, model: str, field: str, graph_type: str, labels: str = "",
                              group_query: bool = False, group_fields: list = [], group_labels: dict = {},
-                             agg: str = 'count'):
+                             agg: str = 'count', label_identifier: str = "", order_by: str = ""):
         """
 
         :param dashboard_id:
@@ -242,7 +242,7 @@ class IndicatorDashboard(http.Controller):
         :param agg:
         """
         print(locals())
-        created = self._create_new_indicator(name, model, field, graph_type, labels, group_query, group_fields, group_labels, agg)
+        created = self._create_new_indicator(name, model, field, graph_type, labels, group_query, group_fields, group_labels, agg, label_identifier, order_by)
         print(dashboard_id)
         if dashboard_id:
             added = request.env['dashboard.dashboard'].add_indicator_to_dashboard(dashboard_id, created.id)
@@ -250,7 +250,7 @@ class IndicatorDashboard(http.Controller):
 
     def _create_new_indicator(self, name: str, model: str, field: str, graph_type: str, labels: str = "",
                               group_query: bool = False, group_fields: list = [], group_labels: dict = {},
-                              agg: str = 'count'):
+                              agg: str = 'count', label_identifier: str = "", order_by: str = ""):
 
         created = request.env['dashboard.indicator'].create({
             'name': name,
@@ -261,7 +261,9 @@ class IndicatorDashboard(http.Controller):
             'group_query': group_query,
             'group_fields': ','.join(group_fields) if group_fields else "",
             'group_labels': group_labels,
-            'agg': agg
+            'agg': agg,
+            'order_by': order_by,
+            'label_identifier': label_identifier
         })
         print(created)
         print(created.name)
@@ -290,7 +292,7 @@ class IndicatorDashboard(http.Controller):
                             'graph': indicator.graph_type
                         })
                     else:
-                        data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.order_by, is_graph)
+                        data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.order_by, is_graph, indicator.label_identifier)
                         indicator_list.append({
                             'name': indicator.name,
                             'data': data,
