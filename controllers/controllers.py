@@ -81,12 +81,12 @@ class IndicatorDashboard(http.Controller):
         return model_list
 
     @http.route('/awesome_dashboard/model_fields', type='json', auth='user')
-    def get_model_fields(self, model_name: str) -> list:
+    def get_model_fields(self, model_name: str):
         print("called get fields")
         print('model name: ', model_name)
         model_fields = request.env[model_name].fields_get()
         print(model_fields)
-        return [model_fields[field] for field in model_fields]
+        return {field: model_fields[field] for field in model_fields}
 
     @http.route('/awesome_dashboard/fetch_for_pie_chart', type='json', auth='user')
     def get_pie_chart_data(self, model_name: str, labels: str, field: str):
