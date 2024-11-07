@@ -111,6 +111,7 @@ class IndicatorDashboard(http.Controller):
         print('model name', model_name)
         print('labels', labels)
         print('field', field)
+        print("order by", order_by)
         main_data = request.env[model_name].search([], order=order_by if order_by else None)
         if graph:
             graph_labels = [record[labels] for record in main_data]
@@ -125,7 +126,7 @@ class IndicatorDashboard(http.Controller):
             field_strings = request.env[model_name].fields_get([field, labels], ['string'])
             data_json['field'] = field_strings[field]['string']
             data_json['labels'] = field_strings[labels]['string']
-            print(data_json)
+            # print(data_json)
             return data_json
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
@@ -300,5 +301,5 @@ class IndicatorDashboard(http.Controller):
             except KeyError:
                 continue
         # indicator_list = [{'id': record.id, **{field: record[field] for field in list(record._fields.keys())}} for record in indicators]
-        print(indicator_list)
+        # print(indicator_list)
         return indicator_list
