@@ -83,7 +83,7 @@
                                 <option value="" selected="true">Select the field to order by</option>
                                 <t t-foreach="fields" t-as="field" t-key="field.name">
                                     <option t-att-value="field.name"
-                                            t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                                            t-esc="`${field.string} - Tipo: ${field.type}`" t-if="field.sortable"></option>
                                 </t>
                             </select>
                         </div>
