@@ -34,15 +34,12 @@ export class NewIndicatorDialog extends Component {
             selectedModel: "",
             selectedField: "",
             labelsField: "",
-            labelsRelationFields: [],
-            labelIdentifier: "",
             aggregation: "count",
             orderByField: "",
             order: "asc",
             dashboardItemType: "",
             moduleIsSelected: false,
             modelIsSelected: false,
-            labelIsSelected: false,
             groupingFields: [],
             groupingLabels: {},
         });
@@ -179,7 +176,7 @@ export class NewIndicatorDialog extends Component {
                 console.log(data);
                 if (await this.indicatorExists(this.state.indicatorName)){
                     this.showNotification('Indicator with this name already exists, try another one', true);
-                    return
+                    return;
                 }
                 else {
                     if (this.props.updateItems) {
@@ -192,6 +189,7 @@ export class NewIndicatorDialog extends Component {
             } catch (error){
                 this.showNotification(`An error ocurred while fetching group data for the indicator`, true);
                 console.log("This error while testing group query: ", error);
+                return;
             }
         }
         else {
@@ -203,7 +201,6 @@ export class NewIndicatorDialog extends Component {
                     labels: this.state.labelsField,
                     order_by: (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : "",
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
-                    label_identifier: this.state.labelIdentifier,
                 });
                 console.log('non group query')
                 console.log(data)
@@ -217,7 +214,7 @@ export class NewIndicatorDialog extends Component {
                     }
                     this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, 
                                     this.state.labelsField, undefined, undefined, undefined, undefined,
-                                     (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined, this.state.labelIdentifier);
+                                     (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined);
                 }
             } catch (error) {
                 this.showNotification(`An error ocurred while fetching single data for the indicator`, true);
@@ -246,7 +243,7 @@ export class NewIndicatorDialog extends Component {
 
 
     async createNewIndicator(name, model, field, graph_type, labels="",
-                                group_query=false, group_fields=[], group_labels={}, agg="count", order_by="", label_identifier=""){
+                                group_query=false, group_fields=[], group_labels={}, agg="count", order_by=""){
         try {
             let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
                 "dashboard_id": (this.props.dashboardId) ? this.props.dashboardId : "",
@@ -260,7 +257,6 @@ export class NewIndicatorDialog extends Component {
                 "group_labels": group_labels,
                 "agg": agg,
                 "order_by": order_by,
-                "label_identifier": label_identifier,
             })
             console.log(new_record)
         } catch (error) {
@@ -269,21 +265,6 @@ export class NewIndicatorDialog extends Component {
         }
     }
     
-    async onChangeLabels() {
-        console.log('entered change labels');
-        
-        this.state.labelIsSelected = false;
-        this.state.labelsRelationFields = [];
-        for (const field of this.fields) {
-            if (field.name == this.state.labelsField && field.relation) {
-                let data = await this.fetchRelationalFieldsData(field.relation);
-                this.state.labelsRelationFields = data;
-                console.log(this.state.labelsRelationFields);
-                
-            }
-        }
-        this.state.labelIsSelected = true;
-    }
 
     async onChangeGroups(event) {
         console.log("entered on change");
