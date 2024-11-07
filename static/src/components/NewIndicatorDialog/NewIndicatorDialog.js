@@ -68,10 +68,10 @@ export class NewIndicatorDialog extends Component {
 
     changeSelectableFields(){
         if (['avg', 'sum', 'max', 'min'].includes(this.state.aggregation)){
-            this.selectableFields = this.fields.filter((field) => ['integer', 'float', 'monetary'].includes(field.type));
+            this.selectableFields = Object.values(this.fields).filter((field) => ['integer', 'float', 'monetary'].includes(field.type));
         }
         else {
-            this.selectableFields = this.fields.filter((field) => field.name == "id");
+            this.selectableFields = Object.values(this.fields).filter((field) => field.name == "id");
         }
         if (this.state.modelIsSelected){
             this.state.modelIsSelected = false;
@@ -98,8 +98,8 @@ export class NewIndicatorDialog extends Component {
             /*console.log("this.models");
             console.log(this.models);*/
         }catch(error){
-            this.showNotification(`Error fetching models from ${this.selectedModule}`, true);
-            console.log(`Error fetching models from ${this.selectedModule}:` , error);
+            this.showNotification(`Error fetching models from ${this.state.selectedModule}`, true);
+            console.log(`Error fetching models from ${this.state.selectedModule}:` , error);
         }
     }
 
@@ -275,7 +275,7 @@ export class NewIndicatorDialog extends Component {
 
 
         this.state.groupingFields = [];
-        for (const field of this.fields) {
+        for (const field of Object.values(this.fields)) {
             if (field1 && field1 == field.name){
                 if (field.relation){
                     let data = await this.fetchRelationalFieldsData(field.relation);
@@ -284,7 +284,7 @@ export class NewIndicatorDialog extends Component {
                             'name': field1,
                             'description': field.string,
                             'relation': field.relation,
-                            'data': data,
+                            'data': Object.values(data),
                         });
                 }
                 else {
@@ -299,7 +299,7 @@ export class NewIndicatorDialog extends Component {
                             'name': field2,
                             'description': field.string,
                             'relation': field.relation,
-                            'data': data,
+                            'data': Object.values(data),
                         });
                 }
                 else {
