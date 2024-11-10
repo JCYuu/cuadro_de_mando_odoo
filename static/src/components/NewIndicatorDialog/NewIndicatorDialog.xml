@@ -105,6 +105,46 @@
                             </div>
                         </div>
                     </div>
+                    <div id="single-filters-row" t-if="this.state.modelIsSelected" class="row p-2">
+                        <div class="row px-4">
+                            <div class="col p-2">
+                                <label class="form-label">Filtrar campo:</label>
+                                <select class="form-select filter-field" t-on-change="(ev) => this.changeValueFilter(ev)">
+                                    <option value="" selected="true">Select the type of indicator</option>
+                                    <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
+                                        <option t-att-value="`${field.name}-${field.type}`"
+                                                t-if="['integer', 'char', 'monetary', 'float', 'text', 'date'].includes(field.type)"
+                                                t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col p-2">
+                                <label class="form-label">Operador:</label>
+                                <select class="form-select filter-operator">
+                                    <option value="" selected="true">Select the comparison type</option>
+                                    <t t-foreach="comparisonOperators"
+                                        t-as="operator" t-key="operator.operator">
+                                        <option t-att-value="operator.operator"
+                                                t-esc="operator.name"></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col p-2">
+                                <label class="form-label">Valor:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control filter-value-input" aria-label="Filter input" aria-describedby="filterInputGroup" placeholder="Valor"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row filter-buttons">
+                            <div class="col-auto px-3">
+                                <button class="btn btn-primary" t-on-click="addNewFilter">Agregar filtro</button>
+                            </div>
+                            <div class="col-auto px-3">
+                                <button class="btn btn-danger" t-on-click="removeFilter">Quitar filtro</button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="item_type_selector">Indicator type:</label>
@@ -274,6 +314,46 @@
                             </div>
                         </t>
                     </div>
+                    <div id="group-filters-row" t-if="this.state.modelIsSelected" class="row p-2">
+                        <div class="row px-4">
+                            <div class="col p-2">
+                                <label class="form-label">Filtrar campo:</label>
+                                <select class="form-select filter-field" t-on-change="(ev) => this.changeValueFilter(ev)">
+                                    <option value="" selected="true">Select the type of indicator</option>
+                                    <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
+                                        <option t-att-value="`${field.name}-${field.type}`"
+                                                t-if="['integer', 'char', 'monetary', 'float', 'text', 'date'].includes(field.type)"
+                                                t-esc="`${field.string} - Tipo: ${field.type}`"></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col p-2">
+                                <label class="form-label">Operador:</label>
+                                <select class="form-select filter-operator">
+                                    <option value="" selected="true">Select the comparison type</option>
+                                    <t t-foreach="comparisonOperators"
+                                        t-as="operator" t-key="operator.operator">
+                                        <option t-att-value="operator.operator"
+                                                t-esc="operator.name"></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col p-2">
+                                <label class="form-label">Valor:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control filter-value-input" aria-label="Filter input" aria-describedby="filterInputGroup" placeholder="Valor"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row filter-buttons">
+                            <div class="col-auto px-3">
+                                <button class="btn btn-primary" t-on-click="addNewFilter">Agregar filtro</button>
+                            </div>
+                            <div class="col-auto px-3">
+                                <button class="btn btn-danger" t-on-click="removeFilter">Quitar filtro</button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row p-3">
                         <div class="col p-2">
                             <label class="form-label" for="item_type_selector">Indicator type:</label>
@@ -290,7 +370,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" t-on-click="fetchTheDataTest" t-esc="addButtonText"/>
+                <button class="btn btn-primary" t-on-click="fetchTheData" t-esc="addButtonText"/>
             </div>
         </div>
     </t>
