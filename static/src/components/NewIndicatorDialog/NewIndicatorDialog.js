@@ -6,7 +6,7 @@ import { getDefaultConfig } from "@web/views/view";
 import { useService } from "@web/core/utils/hooks";
 
 
-import { Component, useSubEnv, useState, onWillStart } from "@odoo/owl";
+import { Component, useSubEnv, useState, onWillStart, onMounted } from "@odoo/owl";
 
 
 export class NewIndicatorDialog extends Component {
@@ -26,6 +26,15 @@ export class NewIndicatorDialog extends Component {
         this.models = useState([]);
         this.fields = useState([]);
         this.selectableFields = useState([]);
+        this.comparisonOperators = [
+            {operator: '=', name: 'Igual a'}, 
+            {operator: '!=', name: 'Diferente de'}, 
+            {operator: '>', name: 'Mayor que'}, 
+            {operator: '<', name: 'Menor que'},
+            {operator: '>=', name: 'Mayor o igual que'}, 
+            {operator: '<=', name: 'Menor o igual que'},  
+            {operator: 'ilike', name: 'Contiene'}
+        ]
         this.rpc = useService("rpc");
         this.notificationService = useService("notification");
         this.state = useState({
@@ -42,11 +51,26 @@ export class NewIndicatorDialog extends Component {
             modelIsSelected: false,
             groupingFields: [],
             groupingLabels: {},
+            filters: [],
+            isGroupQuery: false
         });
 
         onWillStart(async () => {
-            await this.fetchModules();
+            await this.fetchModules();            
         });  
+
+        onMounted(() => {
+            let singleTabButton = document.getElementById('single-tab');
+            let groupTabButton = document.getElementById('group-tab');
+            singleTabButton.addEventListener('shown.bs.tab', event => {
+                console.log('entered event')
+                this.state.isGroupQuery = false;
+            });
+            groupTabButton.addEventListener('shown.bs.tab', event => {
+                console.log('entered event')
+                this.state.isGroupQuery = true;
+            });
+        });
         console.log("finished setting up");
     }
 
@@ -64,6 +88,39 @@ export class NewIndicatorDialog extends Component {
             console.error('Error fetching modules:', error);
         }
 
+    }
+
+    changeValueFilter(event) {
+        let theElement = event.target.parentElement.nextElementSibling.nextElementSibling.querySelector('.filter-value-input');
+        let [, fieldType] = event.target.value.split('-');
+        console.log(fieldType);
+        if (['char', 'text'].includes(fieldType)){
+            theElement.type = 'text';
+        }
+        else if (['integer', 'float', 'monetary'].includes(fieldType)) {
+            theElement.type = 'number';
+        }
+        else if (fieldType == 'date') {
+            theElement.type = 'date';
+        }
+    }
+
+    cloneFilterWithFunction(element){
+        element.querySelector('.filter-field').addEventListener('change', (ev) => this.changeValueFilter(ev));
+        return element;
+    }
+
+    addNewFilter(){
+        let filtersRow = document.getElementById((!this.state.isGroupQuery) ? 'single-filters-row' : 'group-filters-row');
+        filtersRow.lastElementChild.insertAdjacentElement('beforebegin', 
+                                                this.cloneFilterWithFunction(filtersRow.firstElementChild.cloneNode(true)));
+    }
+
+    removeFilter(){
+        let filtersRow = document.getElementById((!this.state.isGroupQuery) ? 'single-filters-row' : 'group-filters-row');
+        if (filtersRow.childElementCount > 2){
+            filtersRow.lastElementChild.previousElementSibling.remove();
+        }
     }
 
     changeSelectableFields(){
@@ -139,15 +196,28 @@ export class NewIndicatorDialog extends Component {
         console.log(data);
         return data
     }
-    async fetchTheData() {
-        console.log(this.state.selectedField);
-        try{
-            let data = await this.rpc("/awesome_dashboard/fetch_for_pie_chart", {model_name: this.state.selectedModel, labels: this.state.labelsField, field: this.state.selectedField});
-            console.log(data);
-            this.props.updateItems(data, this.state.selectedField);
-            this.props.close();
-        }catch (error){
-            console.log("An error in retrieving data: ", error);
+
+    fetchTheData() {
+        this.state.filters = [];
+        let filterRows = document.getElementById((!this.state.isGroupQuery) ? 'single-filters-row' : 'group-filters-row').children;
+        for (const element of filterRows) {
+            if (element.className.includes('filter-buttons')) break;
+            let [field, fieldType] = element.querySelector('.filter-field').value.split('-');            
+            let operator = element.querySelector('.filter-operator').value;
+            let value = element.querySelector('.filter-value-input').value;
+            console.log([field, operator, value]);
+
+            if (!field || !operator || !value){
+                if (field) {
+                    let fieldName = this.fields[field].string
+                    if (['integer', 'float', 'monetary'].includes(fieldType) && !value) {
+                        throw `El valor a comparar para el campo ${fieldName} debe ser un número`
+                    }
+                }
+                else throw "Debes llenar todos los campos de cada filtro";
+            }
+
+            this.state.filters.push([field, operator, value]);
         }
 
     }
