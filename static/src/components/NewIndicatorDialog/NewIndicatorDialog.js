@@ -197,7 +197,7 @@ export class NewIndicatorDialog extends Component {
         return data
     }
 
-    fetchTheData() {
+    retrieveTheFilters() {
         this.state.filters = [];
         let filterRows = document.getElementById((!this.state.isGroupQuery) ? 'single-filters-row' : 'group-filters-row').children;
         for (const element of filterRows) {

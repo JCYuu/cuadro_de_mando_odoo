@@ -264,7 +264,7 @@ class IndicatorDashboard(http.Controller):
             'group_labels': group_labels,
             'agg': agg,
             'order_by': order_by,
-        })
+        })'name': 'Somenamee', 'model': 'estate.property', 'field': 'total_area', 'graph_type': 'pie', 'labels': 'name', 'group_query': False, 'group_fields': [], 'group_labels': {}, 'agg': 'count', 'order_by': ''
         print(created)
         print(created.name)
         return created

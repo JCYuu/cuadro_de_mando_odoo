@@ -370,7 +370,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" t-on-click="fetchTheData" t-esc="addButtonText"/>
+                <button class="btn btn-primary" t-on-click="fetchTheDataTest" t-esc="addButtonText"/>
             </div>
         </div>
     </t>
