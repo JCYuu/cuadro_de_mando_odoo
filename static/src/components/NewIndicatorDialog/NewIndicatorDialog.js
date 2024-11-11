@@ -52,7 +52,8 @@ export class NewIndicatorDialog extends Component {
             groupingFields: [],
             groupingLabels: {},
             filters: [],
-            isGroupQuery: false
+            isGroupQuery: false,
+            useFilters: false,
         });
 
         onWillStart(async () => {
@@ -62,16 +63,26 @@ export class NewIndicatorDialog extends Component {
         onMounted(() => {
             let singleTabButton = document.getElementById('single-tab');
             let groupTabButton = document.getElementById('group-tab');
-            singleTabButton.addEventListener('shown.bs.tab', event => {
+            singleTabButton.addEventListener('show.bs.tab', event => {
                 console.log('entered event')
                 this.state.isGroupQuery = false;
+                this.resetFilters();
             });
-            groupTabButton.addEventListener('shown.bs.tab', event => {
+            groupTabButton.addEventListener('show.bs.tab', event => {
                 console.log('entered event')
                 this.state.isGroupQuery = true;
+                this.resetFilters();
             });
         });
         console.log("finished setting up");
+    }
+
+    resetFilters() {
+        let singleFiltersCheck = document.getElementById('useFiltersCheck-single');
+        let groupFiltersCheck = document.getElementById('useFiltersCheck-group');
+        this.state.useFilters = false;
+        singleFiltersCheck.checked = false;
+        groupFiltersCheck.checked = false;
     }
 
     async fetchModules(){
@@ -199,6 +210,7 @@ export class NewIndicatorDialog extends Component {
 
     retrieveTheFilters() {
         this.state.filters = [];
+        console.log('entered retrieving filters')
         let filterRows = document.getElementById((!this.state.isGroupQuery) ? 'single-filters-row' : 'group-filters-row').children;
         for (const element of filterRows) {
             if (element.className.includes('filter-buttons')) break;
@@ -206,7 +218,10 @@ export class NewIndicatorDialog extends Component {
             let operator = element.querySelector('.filter-operator').value;
             let value = element.querySelector('.filter-value-input').value;
             console.log([field, operator, value]);
-
+        /*     if ((!field && !operator && !value) && filterRows.childElementCount == 2){
+                console.log('no filters');
+                return;
+            } */
             if (!field || !operator || !value){
                 if (field) {
                     let fieldName = this.fields[field].string
@@ -214,7 +229,7 @@ export class NewIndicatorDialog extends Component {
                         throw `El valor a comparar para el campo ${fieldName} debe ser un número`
                     }
                 }
-                else throw "Debes llenar todos los campos de cada filtro";
+                throw "Debes llenar todos los campos de cada filtro";
             }
 
             this.state.filters.push([field, operator, value]);
@@ -230,10 +245,20 @@ export class NewIndicatorDialog extends Component {
 
     async fetchTheDataTest() {
         const isGroupQuery = document.getElementById('group-tab').ariaSelected == 'true';
-        if (isGroupQuery) {
+        try{
+            if (this.state.useFilters) {
+                this.retrieveTheFilters();
+            }
+        } catch (error) {
+            this.showNotification(error, true);
+            console.log("This error in filters: ", error);
+            return;
+        }
+        if (this.state.isGroupQuery) {
             try {
                 console.log(this.state.dashboardItemType)
                 let data = await this.rpc('/awesome_dashboard/group_query', {
+                    domain: this.state.filters,
                     model_name: this.state.selectedModel,
                     field: this.state.selectedField,
                     group_by: this.state.groupingFields.map(field => field.name),
@@ -254,7 +279,8 @@ export class NewIndicatorDialog extends Component {
                     }
                     this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
                                         this.state.dashboardItemType,  undefined, true,
-                                          this.state.groupingFields.map(field => field.name), this.state.groupingLabels, this.state.aggregation, this.state.order);
+                                          this.state.groupingFields.map(field => field.name), this.state.groupingLabels,
+                                           this.state.aggregation, this.state.order, this.state.filters);
                 }
             } catch (error){
                 this.showNotification(`An error ocurred while fetching group data for the indicator`, true);
@@ -266,6 +292,7 @@ export class NewIndicatorDialog extends Component {
             try {
                 console.log(this.state.dashboardItemType)
                 let data = await this.rpc('/awesome_dashboard/indicator_query', {
+                    domain: this.state.filters,
                     model_name: this.state.selectedModel,
                     field: this.state.selectedField,
                     labels: this.state.labelsField,
@@ -284,7 +311,7 @@ export class NewIndicatorDialog extends Component {
                     }
                     this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType, 
                                     this.state.labelsField, undefined, undefined, undefined, undefined,
-                                     (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined);
+                                     (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined, this.state.filters);
                 }
             } catch (error) {
                 this.showNotification(`An error ocurred while fetching single data for the indicator`, true);
@@ -313,12 +340,13 @@ export class NewIndicatorDialog extends Component {
 
 
     async createNewIndicator(name, model, field, graph_type, labels="",
-                                group_query=false, group_fields=[], group_labels={}, agg="count", order_by=""){
+                                group_query=false, group_fields=[], group_labels={}, agg="count", order_by="", domain=[]){
         try {
             let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
                 "dashboard_id": (this.props.dashboardId) ? this.props.dashboardId : "",
                 "name": name,
                 "model": model,
+                "domain": domain,
                 "field": field,
                 "graph_type": graph_type,
                 "labels": labels,
