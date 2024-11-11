@@ -10,6 +10,7 @@ class DashboardIndicator(models.Model):
     
     name = fields.Char("Indicador", required=True)
     model = fields.Char("Modelo")
+    domain = fields.Json()
     field = fields.Char("")
     labels = fields.Char("")
     graph_type = fields.Char("Tipo de Indicador")
