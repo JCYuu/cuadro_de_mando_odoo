@@ -98,7 +98,7 @@ class IndicatorDashboard(http.Controller):
         return item[labels[item_type]] if item_type in labels.keys() else item
 
     @http.route('/awesome_dashboard/indicator_query', type='json', auth='user')
-    def query_indicator_data(self, model_name: str, labels: str, field: str, order_by: str = "", graph: bool = False) -> dict:
+    def query_indicator_data(self, model_name: str, labels: str, field: str, domain: list = [], order_by: str = "", graph: bool = False) -> dict:
         """
         Return query data for specified model using labels as data identifiers.
         
@@ -109,10 +109,15 @@ class IndicatorDashboard(http.Controller):
         :return: a json with the query result
         """
         print('model name', model_name)
+        print('domain', domain)
         print('labels', labels)
         print('field', field)
         print("order by", order_by)
-        main_data = request.env[model_name].search([], order=order_by if order_by else None)
+        if domain:
+            print('found domain')
+            domain = [tuple(filter) for filter in domain]
+            print(domain)
+        main_data = request.env[model_name].search(domain, order=order_by if order_by else None)
         if graph:
             graph_labels = [record[labels] for record in main_data]
             graph_dataset = [{'label': field, 'data': [record[field] for record in main_data]}]
@@ -130,7 +135,7 @@ class IndicatorDashboard(http.Controller):
             return data_json
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
-    def group_query_indicator(self, model_name: str, field: str, group_by: list, group_by_label: dict = {},
+    def group_query_indicator(self, model_name: str, field: str, group_by: list, domain: list = [], group_by_label: dict = {},
                               agg: str = 'count', order_by: str = "", graph: bool = False) -> dict:
         """
         Returns the group query for desired field and specified aggregations.
@@ -146,17 +151,20 @@ class IndicatorDashboard(http.Controller):
         """
         print('Entered group query')
         print('model name', model_name)
+        print('domain', domain)
         print('field', field)
         print('agg', agg)
         print('group by', group_by)
         print('group by label', group_by_label)
         print('Order by', order_by)
         print('graph', graph)
+        if domain:
+            domain = [tuple(filter) for filter in domain]
         field_name = request.env[model_name].fields_get([field])[field]['string']
         lang = request.env.user.lang
         order = {"asc": False, "desc": True}
         print(lang)
-        main_data = request.env[model_name].with_context(lang=lang)._read_group([], aggregates=[f'{field}:{agg}'],
+        main_data = request.env[model_name].with_context(lang=lang)._read_group(domain, aggregates=[f'{field}:{agg}'],
                                                                                 groupby=[*group_by])
         labelled_data = []
         for index, record in enumerate(main_data):
@@ -226,7 +234,7 @@ class IndicatorDashboard(http.Controller):
             return graph_data
 
     @http.route('/awesome_dashboard/create_indicator', type='json', auth='user')
-    def create_new_indicator(self, dashboard_id, name: str, model: str, field: str, graph_type: str, labels: str = "",
+    def create_new_indicator(self, dashboard_id,  name: str, model: str, field: str, graph_type: str, domain: list = [], labels: str = "",
                              group_query: bool = False, group_fields: list = [], group_labels: dict = {},
                              agg: str = 'count', order_by: str = ""):
         """
@@ -242,20 +250,24 @@ class IndicatorDashboard(http.Controller):
         :param group_labels:
         :param agg:
         """
+        # if domain:
+        #     domain = [tuple(filter) for filter in domain]
+        print(domain)
         print(locals())
-        created = self._create_new_indicator(name, model, field, graph_type, labels, group_query, group_fields, group_labels, agg, order_by)
+        created = self._create_new_indicator(name,  model, field, graph_type, domain, labels, group_query, group_fields, group_labels, agg, order_by)
         print(dashboard_id)
         if dashboard_id:
             added = request.env['dashboard.dashboard'].add_indicator_to_dashboard(dashboard_id, created.id)
             print("Added to dashboard", added)
 
-    def _create_new_indicator(self, name: str, model: str, field: str, graph_type: str, labels: str = "",
+    def _create_new_indicator(self, name: str,  model: str, field: str, graph_type: str, domain: list = [], labels: str = "",
                               group_query: bool = False, group_fields: list = [], group_labels: dict = {},
                               agg: str = 'count', order_by: str = ""):
 
         created = request.env['dashboard.indicator'].create({
             'name': name,
             'model': model,
+            'domain': domain,
             'field': field,
             'labels': labels,
             'graph_type': graph_type,
@@ -264,7 +276,7 @@ class IndicatorDashboard(http.Controller):
             'group_labels': group_labels,
             'agg': agg,
             'order_by': order_by,
-        })'name': 'Somenamee', 'model': 'estate.property', 'field': 'total_area', 'graph_type': 'pie', 'labels': 'name', 'group_query': False, 'group_fields': [], 'group_labels': {}, 'agg': 'count', 'order_by': ''
+        })
         print(created)
         print(created.name)
         return created
@@ -284,7 +296,8 @@ class IndicatorDashboard(http.Controller):
                         group_by = indicator.get_group_fields()
                         print(group_by)
                         print('indicator labels: ', indicator.group_labels)
-                        data = self.group_query_indicator(indicator.model, indicator.field, group_by,
+                        print('indicator domain:', indicator.domain)
+                        data = self.group_query_indicator(indicator.model, indicator.field, indicator.domain if indicator.domain else [], group_by,
                                                         indicator.group_labels if indicator.group_labels else {}, indicator.agg, graph=is_graph, order_by=indicator.order_by)
                         indicator_list.append({
                             'name': indicator.name,
@@ -292,7 +305,7 @@ class IndicatorDashboard(http.Controller):
                             'graph': indicator.graph_type
                         })
                     else:
-                        data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.order_by, is_graph)
+                        data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.domain if indicator.domain else [], indicator.order_by, is_graph)
                         indicator_list.append({
                             'name': indicator.name,
                             'data': data,
