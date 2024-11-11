@@ -297,7 +297,7 @@ class IndicatorDashboard(http.Controller):
                         print(group_by)
                         print('indicator labels: ', indicator.group_labels)
                         print('indicator domain:', indicator.domain)
-                        data = self.group_query_indicator(indicator.model, indicator.field, indicator.domain if indicator.domain else [], group_by,
+                        data = self.group_query_indicator(indicator.model, indicator.field, group_by, indicator.domain if indicator.domain else [], 
                                                         indicator.group_labels if indicator.group_labels else {}, indicator.agg, graph=is_graph, order_by=indicator.order_by)
                         indicator_list.append({
                             'name': indicator.name,
