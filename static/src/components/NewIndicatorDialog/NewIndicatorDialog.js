@@ -66,11 +66,13 @@ export class NewIndicatorDialog extends Component {
             singleTabButton.addEventListener('show.bs.tab', event => {
                 console.log('entered event')
                 this.state.isGroupQuery = false;
+                this.state.selectedField = ""
                 this.resetFilters();
             });
             groupTabButton.addEventListener('show.bs.tab', event => {
                 console.log('entered event')
                 this.state.isGroupQuery = true;
+                this.state.selectedField = ""
                 this.resetFilters();
             });
         });
@@ -136,7 +138,7 @@ export class NewIndicatorDialog extends Component {
 
     changeSelectableFields(){
         if (['avg', 'sum', 'max', 'min'].includes(this.state.aggregation)){
-            this.selectableFields = Object.values(this.fields).filter((field) => ['integer', 'float', 'monetary'].includes(field.type));
+            this.selectableFields = Object.values(this.fields).filter((field) => (['integer', 'float', 'monetary'].includes(field.type) && field.store));
         }
         else {
             this.selectableFields = Object.values(this.fields).filter((field) => field.name == "id");
@@ -200,12 +202,31 @@ export class NewIndicatorDialog extends Component {
         }
     }
 
-
     async fetchRelationalFieldsData(model) {
         let data = await this.rpc("/awesome_dashboard/model_fields", {model_name: model});
         console.log(model);
         console.log(data);
         return data
+    }
+
+    validateNecessaryFields() {
+        if (this.state.isGroupQuery) {
+            if (!this.state.indicatorName || !this.state.selectedModel || !this.state.selectedField || !this.state.groupingFields || !this.state.dashboardItemType) {
+                if (this.state.groupingFields.length) {
+                    let relationalFieldsCount = this.state.groupingFields.filter(field => field.relation).length;
+                    let relationalLabelsCount = Object.values(this.state.groupingLabels).length;
+                    if (relationalFieldsCount != relationalLabelsCount) {
+                        throw "Escoja un identificador para los campos que referencian otras tablas";
+                    } 
+                }
+                throw "Rellene todos los campos necesarios. Los campos marcados con '*' son obligatorios";     
+            }
+        }
+        else {
+            if (!this.state.indicatorName || !this.state.selectedModel || !this.state.selectedField || !this.state.labelsField || !this.state.dashboardItemType){
+                throw "Rellene todos los campos necesarios. Los campos marcados con '*' son obligatorios";     
+            }
+        }
     }
 
     retrieveTheFilters() {
@@ -218,10 +239,6 @@ export class NewIndicatorDialog extends Component {
             let operator = element.querySelector('.filter-operator').value;
             let value = element.querySelector('.filter-value-input').value;
             console.log([field, operator, value]);
-        /*     if ((!field && !operator && !value) && filterRows.childElementCount == 2){
-                console.log('no filters');
-                return;
-            } */
             if (!field || !operator || !value){
                 if (field) {
                     let fieldName = this.fields[field].string
@@ -249,9 +266,10 @@ export class NewIndicatorDialog extends Component {
             if (this.state.useFilters) {
                 this.retrieveTheFilters();
             }
+            this.validateNecessaryFields();
         } catch (error) {
             this.showNotification(error, true);
-            console.log("This error in filters: ", error);
+            console.log("This error in filters or validation: ", error);
             return;
         }
         if (this.state.isGroupQuery) {
