@@ -2,26 +2,26 @@
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.NewIndicatorDialog">
         <div class="container h-100 overflow-auto p-2">
-            <h3 class="mb-3">Configure your new Indicator</h3>
+            <h3 class="mb-3">Configure el nuevo Indicador</h3>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single-tab-pane"
                         type="button" role="tab" aria-controls="single-tab-pane"
-                        aria-selected="true">Single query</button>
+                        aria-selected="true">Datos simples</button>
                 </li>
                 <li class="nav-item" role="presentation">
                 <button class="nav-link" id="group-tab" data-bs-toggle="tab" data-bs-target="#group-tab-pane"
                         type="button" role="tab" aria-controls="group-tab-pane"
-                        aria-selected="false">Group query</button>
+                        aria-selected="false">Datos agregados</button>
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="single-tab-pane" role="tabpanel" aria-labelledby="single-tab"
                      tabindex="0">
-                    <div class="row p-3"><h1>Single</h1></div>
+                    <div class="row p-3"><h1>Consulta simple</h1></div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="name_input">Indicator name:</label>
+                            <label class="form-label" for="name_input">Nombre del Indicador: <span class="text-danger">*</span></label>
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" aria-label="Name input" aria-describedby="nameInputGroup" placeholder="Name" t-model="state.indicatorName"/>
                             </div>
@@ -29,20 +29,20 @@
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="module_selector">Module to retrieve data:</label>
+                            <label class="form-label" for="module_selector">Módulo: <span class="text-danger">*</span></label>
                             <select id="module_selector" t-model="state.selectedModule" t-on-change="fetchModels"
                                     class="form-select">
-                                <option value="" selected="true">Select a module</option>
+                                <option value="" selected="true">Escoja un módulo</option>
                                 <t t-foreach="modules" t-as="module" t-key="module.name">
                                     <option t-att-value="module.name" t-esc="module.desc"></option>
                                 </t>
                             </select>
                         </div>
                         <div class="col p-2">
-                            <label class="form-label" for="model_selector">Model:</label>
+                            <label class="form-label" for="model_selector">Modelo o tabla: <span class="text-danger">*</span></label>
                             <select id="model_selector" t-if="state.moduleIsSelected" t-model="state.selectedModel"
                                     t-on-change="fetchModelFields" class="form-select">
-                                <option value="" selected="true">Select a model</option>
+                                <option value="" selected="true">Escoja un modelo</option>
                                 <t t-foreach="models" t-as="model" t-key="model.model">
                                     <option t-att-value="model.model" t-esc="model.model_name"></option>
                                 </t>
@@ -51,10 +51,10 @@
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="data_field_selector">Data:</label>
+                            <label class="form-label" for="data_field_selector">Campo de datos: <span class="text-danger">*</span></label>
                             <select id="data_field_selector" t-if="state.modelIsSelected" t-model="state.selectedField"
                                     class="form-select">
-                                <option value="" selected="true">Select a field</option>
+                                <option value="" selected="true">Escoja un campo</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                     <option t-att-value="field.name"
                                             t-if="['integer', 'char', 'monetary', 'float', 'text', 'boolean'].includes(field.type)"
@@ -63,10 +63,10 @@
                             </select>
                         </div>
                         <div class="col p-2">
-                            <label class="form-label" for="label_selector">Graph labels:</label>
+                            <label class="form-label" for="label_selector">Identificador de los datos: <span class="text-danger">*</span></label>
                             <select id="label_selector" t-if="state.modelIsSelected" t-model="state.labelsField"
                                     class="form-select">
-                                <option value="" selected="true">Select fields to act as labels</option>
+                                <option value="" selected="true">Escoja un identificador para el campo</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                     <option t-if="['integer', 'char', 'float', 'text', 'boolean'].includes(field.type)"
                                             t-att-value="field.name"
@@ -77,10 +77,10 @@
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="order_by_field_selector">Order by:</label>
+                            <label class="form-label" for="order_by_field_selector">Ordenar por:</label>
                             <select id="order_by_field_selector" t-if="state.modelIsSelected"
                                     t-model="state.orderByField" class="form-select">
-                                <option value="" selected="true">Select the field to order by</option>
+                                <option value="" selected="true">Escoja campo para ordenar</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                     <option t-att-value="field.name"
                                             t-esc="`${field.string} - Tipo: ${field.type}`" t-if="field.sortable"></option>
@@ -88,7 +88,7 @@
                             </select>
                         </div>
                         <div t-if="state.orderByField" class="col p-2">
-                            <label class="form-label" for="order_by_field_selector">Order by:</label>
+                            <label class="form-label" for="order_by_field_selector">Orden:</label>
                             <div class="col p-2 mx-3">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="orderRadio" id="orderRadio-asc" checked="true" t-on-change="(ev) => this.changeOrder(ev, 'asc')"/>
@@ -120,7 +120,7 @@
                             <div class="col p-2">
                                 <label class="form-label">Filtrar campo:</label>
                                 <select class="form-select filter-field" t-on-change="(ev) => this.changeValueFilter(ev)">
-                                    <option value="" selected="true">Select the type of indicator</option>
+                                    <option value="" selected="true">Escoja el campo a filtrar</option>
                                     <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                         <option t-att-value="`${field.name}-${field.type}`"
                                                 t-if="['integer', 'char', 'monetary', 'float', 'text', 'date'].includes(field.type)"
@@ -131,7 +131,7 @@
                             <div class="col p-2">
                                 <label class="form-label">Operador:</label>
                                 <select class="form-select filter-operator">
-                                    <option value="" selected="true">Select the comparison type</option>
+                                    <option value="" selected="true">Escoja un operador de comparación</option>
                                     <t t-foreach="comparisonOperators"
                                         t-as="operator" t-key="operator.operator">
                                         <option t-att-value="operator.operator"
@@ -157,11 +157,11 @@
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="item_type_selector">Indicator type:</label>
+                            <label class="form-label" for="item_type_selector">Tipo de visualización: <span class="text-danger">*</span></label>
                             <t t-set="item_types"
                                t-value="[{type: 'number', name: 'Number Card'}, {type: 'pie', name: 'Pie Chart'}, {type: 'bar', name: 'Bar Chart'}, {type: 'line', name: 'Line Chart'}]"/>
                             <select id="item_type_selector" t-model="state.dashboardItemType" class="form-select">
-                                <option value="" selected="true">Select the type of indicator</option>
+                                <option value="" selected="true">Escoja el tipo de indicador</option>
                                 <t t-foreach="item_types" t-as="item" t-key="item.type">
                                     <option t-att-value="item.type" t-esc="item.name"></option>
                                 </t>
@@ -170,10 +170,10 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="group-tab-pane" role="tabpanel" aria-labelledby="group-tab" tabindex="0">
-                    <div class="row p-3"><h1>Group</h1></div>
+                    <div class="row p-3"><h1>Consulta con agrupación</h1></div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="name_input">Indicator name:</label>
+                            <label class="form-label" for="name_input">Nombre de Indicador: <span class="text-danger">*</span></label>
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" aria-label="Name input" aria-describedby="nameInputGroup" placeholder="Name" t-model="state.indicatorName"/>
                             </div>
@@ -181,30 +181,30 @@
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="module_selector">Module to retrieve data:</label>
+                            <label class="form-label" for="module_selector">Módulo: <span class="text-danger">*</span></label>
                             <select id="module_selector" t-model="state.selectedModule" t-on-change="fetchModels"
                                     class="form-select">
-                                <option value="" selected="true">Select a module</option>
+                                <option value="" selected="true">Escoja un módulo</option>
                                 <t t-foreach="modules" t-as="module" t-key="module.name">
                                     <option t-att-value="module.name" t-esc="module.desc"></option>
                                 </t>
                             </select>
                         </div>
                         <div class="col p-2">
-                            <label class="form-label" for="model_selector">Model:</label>
+                            <label class="form-label" for="model_selector">Modelo o tabla: <span class="text-danger">*</span></label>
                                 <select id="model_selector" t-if="state.moduleIsSelected" t-model="state.selectedModel"
                                         t-on-change="fetchModelFields" class="form-select">
-                                <option value="" selected="true">Select a model</option>
+                                <option value="" selected="true">Escoja un modelo</option>
                                     <t t-foreach="models" t-as="model" t-key="model.model">
                                     <option t-att-value="model.model" t-esc="model.model_name"></option>
                                 </t>
                             </select>
                         </div>
                         <div class="col p-2">
-                            <label class="form-label" for="data_field_selector">Data:</label>
+                            <label class="form-label" for="data_field_selector">Campo de datos: <span class="text-danger">*</span></label>
                             <select id="data_field_selector" t-if="state.modelIsSelected" t-model="state.selectedField"
                                     class="form-select">
-                                    <option value="" selected="true">Select a field</option>
+                                    <option value="" selected="true">Escoja un campo</option>
                                 <t t-foreach="selectableFields" t-as="field" t-key="field.name">
                                         <option t-att-value="field.name"
                                                 t-if="['integer', 'char', 'float', 'monetary', 'text', 'boolean'].includes(field.type)"
@@ -214,12 +214,12 @@
                         </div>
                     </div>
                     <div class="row p-3">
-                        <label>Aggregation: </label>
+                        <label>Agregacion: </label>
                         <div class="col p-2 mx-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="aggRadio" id="aggRadio-count" checked="true" t-on-change="(ev) => this.changeAggregation(ev, 'count')"/>
                                 <label class="form-check-label" for="aggRadio-count">
-                                    Count
+                                    Contar
                                 </label>
                             </div>
                         </div>
@@ -227,7 +227,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="aggRadio" id="aggRadio-avg" t-on-change="(ev) => this.changeAggregation(ev, 'avg')"/>
                                 <label class="form-check-label" for="aggRadio-avg">
-                                    Average
+                                    Promedio
                                 </label>
                             </div>
                         </div>
@@ -235,7 +235,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="aggRadio" id="aggRadio-sum" t-on-change="(ev) => this.changeAggregation(ev, 'sum')"/>
                                 <label class="form-check-label" for="aggRadio-sum">
-                                    Sum
+                                    Suma
                                 </label>
                             </div>
                         </div>
@@ -243,7 +243,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="aggRadio" id="aggRadio-max" t-on-change="(ev) => this.changeAggregation(ev, 'max')"/>
                                 <label class="form-check-label" for="aggRadio-max">
-                                    Max
+                                    Máximo
                                 </label>
                             </div>
                         </div>
@@ -251,14 +251,14 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="aggRadio" id="aggRadio-min" t-on-change="(ev) => this.changeAggregation(ev, 'min')"/>
                                 <label class="form-check-label" for="aggRadio-min">
-                                    Min
+                                    Mínimo
                                 </label>
                             </div>
                         </div>
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="order_by_field_selector">Order by:</label>
+                            <label class="form-label" for="order_by_field_selector">Orden:</label>
                             <div class="col p-2 mx-3">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="orderRadio" id="orderRadio-asc" checked="true" t-on-change="(ev) => this.changeOrder(ev, 'asc')"/>
@@ -279,10 +279,10 @@
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="grouped_fields_selector">Group by first:</label>
+                            <label class="form-label" for="grouped_fields_selector">Agrupar por: <span class="text-danger">*</span></label>
                             <select id="grouped_field_selector-1" t-if="state.modelIsSelected"
                                     t-on-change="onChangeGroups" class="form-select">
-                                <option value="" selected="true">Select the 1st field to group by</option>
+                                <option value="" selected="true">Escoja un campo para agrupar</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                     <t t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
                                         <t t-if="field.depends.length &lt; 2">
@@ -293,10 +293,10 @@
                             </select>
                         </div>
                         <div class="col p-2">
-                            <label class="form-label" for="grouped_fields_selector">Group by second:</label>
+                            <label class="form-label" for="grouped_fields_selector">Agrupar por segundo campo:</label>
                             <select id="grouped_field_selector-2" t-if="state.modelIsSelected"
                                     t-on-change="onChangeGroups" class="form-select">
-                                <option value="" selected="true">Select the 2nd field to group by</option>
+                                <option value="" selected="true">Escoja un campo para segunda agrupación</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                     <t t-if="['integer', 'selection', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
                                         <t t-if="field.depends.length &lt; 2">
@@ -307,14 +307,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-3" t-if="state.groupingFields">
+                    <div class="row p-3" t-if="state.groupingFields.filter(field => field.relation).length">
                         <t t-foreach="state.groupingFields" t-as="field" t-key="field.name">
                             <div class="col p-2" t-if="field.data">
                                 <label t-att-for="`${field.name}_selector`" class="form-label"><t t-esc="field.description"/>
-                                    identifier</label>
+                                    identificador: <span class="text-danger">*</span></label>
                                 <select t-att-id="`${field.name}_selector`" class="form-select"
                                         t-on-change="(event) => this.onChangeGroupsLabel(event, field.relation)">
-                                    <option value="" selected="true">Select the field to represent <t
+                                    <option value="" selected="true">Escoja un identificador para <t
                                             t-esc="field.description"></t></option>
                                     <t t-foreach="field.data" t-as="relationField" t-key="relationField.name">
                                         <option t-if="relationField.type == 'char'" t-att-value="relationField.name"
@@ -339,7 +339,7 @@
                             <div class="col p-2">
                                 <label class="form-label">Filtrar campo:</label>
                                 <select class="form-select filter-field" t-on-change="(ev) => this.changeValueFilter(ev)">
-                                    <option value="" selected="true">Select the type of indicator</option>
+                                    <option value="" selected="true">Escoja el campo a filtrar</option>
                                     <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                         <option t-att-value="`${field.name}-${field.type}`"
                                                 t-if="['integer', 'char', 'monetary', 'float', 'text', 'date'].includes(field.type)"
@@ -350,7 +350,7 @@
                             <div class="col p-2">
                                 <label class="form-label">Operador:</label>
                                 <select class="form-select filter-operator">
-                                    <option value="" selected="true">Select the comparison type</option>
+                                    <option value="" selected="true">Escoja un operador de comparación</option>
                                     <t t-foreach="comparisonOperators"
                                         t-as="operator" t-key="operator.operator">
                                         <option t-att-value="operator.operator"
@@ -376,11 +376,11 @@
                     </div>
                     <div class="row p-3">
                         <div class="col p-2">
-                            <label class="form-label" for="item_type_selector">Indicator type:</label>
+                            <label class="form-label" for="item_type_selector">Tipo de visualización: <span class="text-danger">*</span></label>
                             <t t-set="item_types"
                                t-value="[{type: 'number', name: 'Number Card'}, {type: 'pie', name: 'Pie Chart'}, {type: 'bar', name: 'Bar Chart'}, {type: 'line', name: 'Line Chart'}]"/>
                             <select id="item_type_selector" t-model="state.dashboardItemType" class="form-select">
-                                <option value="" selected="true">Select the type of indicator</option>
+                                <option value="" selected="true">Escoja el tipo de indicador</option>
                                 <t t-foreach="item_types" t-as="item" t-key="item.type">
                                     <option t-att-value="item.type" t-esc="item.name"></option>
                                 </t>
