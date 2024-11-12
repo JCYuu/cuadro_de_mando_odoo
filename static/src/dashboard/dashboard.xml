@@ -16,7 +16,7 @@
             <div class="d-flex flex-wrap">
                 <t t-foreach="addedItems" t-as="item" t-key="item.id">
                     <div class="col-auto">
-                        <DashboardItem size="item.size || 1">
+                        <DashboardItem size="item.size || 1" height="item.height || undefined">
                             <t t-set="itemProp" t-value="item.props ? item.props : {'data': statistics}"/>
                             <t t-component="item.Component" t-props="itemProp"/>
                         </DashboardItem>

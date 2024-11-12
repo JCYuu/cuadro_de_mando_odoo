@@ -90,21 +90,31 @@ class IndicatorDashboard extends Component {
     }*/
 
     updateItemsList(item_title, data, component) {
-        if (component == "d"){
+        if (component == "number"){
             console.log("is a numbercard");
-            
+            this.addedItems.push({
+                id: item_title,
+                description: "new item description",
+                Component: this.component_types[component],
+                size: 2,
+                props: {
+                    title: item_title,
+                    values: data
+                },
+                height: 1
+            });
         }
         else {
             this.addedItems.push({
-            id: item_title,
-            description: "new item description",
-            Component: this.component_types[component],
-            size: 2,
-            props: {
-                title: item_title,
-                values: data
-            }
-        });
+                id: item_title,
+                description: "new item description",
+                Component: this.component_types[component],
+                size: 2,
+                props: {
+                    title: item_title,
+                    values: data
+                }
+            });
         }
         console.log("updated items?")
         console.log(this.addedItems);
