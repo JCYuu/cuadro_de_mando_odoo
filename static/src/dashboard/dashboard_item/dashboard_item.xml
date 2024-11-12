@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.DashboardItem">
-        <div class="card m-2 shadow" t-attf-style="width: {{18*props.size}}rem;">
+        <div class="card m-2 shadow" t-attf-style="width: {{18*props.size}}rem; height: {{(props.height) ? 18*props.height : 'auto'}}">
             <div class="card-body">
                 <t t-slot="default"/>
             </div>
