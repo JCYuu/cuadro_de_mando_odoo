@@ -287,6 +287,9 @@ export class NewIndicatorDialog extends Component {
                 });
                 console.log('fetched data');
                 console.log(data);
+                if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
+                    return;
+                }
                 if (await this.indicatorExists(this.state.indicatorName)){
                     this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return;
@@ -319,6 +322,9 @@ export class NewIndicatorDialog extends Component {
                 });
                 console.log('non group query')
                 console.log(data)
+                if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
+                    return;
+                }
                 if (await this.indicatorExists(this.state.indicatorName)){
                     this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return
@@ -387,42 +393,48 @@ export class NewIndicatorDialog extends Component {
         const options = event.target.options;
         const field1 = document.getElementById('grouped_field_selector-1').value;
         const field2 = document.getElementById('grouped_field_selector-2').value;
-        console.log(field1, field2);
+        console.log('the fields:', field1, field2);
+        let data1, data2;
 
 
-        this.state.groupingFields = [];
+        // this.state.groupingFields = [];
         for (const field of Object.values(this.fields)) {
+            console.log(`we are in field ${field.name}`)
             if (field1 && field1 == field.name){
                 if (field.relation){
                     let data = await this.fetchRelationalFieldsData(field.relation);
-                    this.state.groupingFields.push(
+                    data1 =
                         {
                             'name': field1,
                             'description': field.string,
                             'relation': field.relation,
                             'data': Object.values(data),
-                        });
+                        }
                 }
                 else {
-                    this.state.groupingFields.push({'name': field1, 'description': field.string});
+                    data1 = {'name': field1, 'description': field.string};
                 }
             }
             if (field1 && field2 && field2 == field.name){
                 if (field.relation){
                     let data = await this.fetchRelationalFieldsData(field.relation);
-                    this.state.groupingFields.push(
+                    data2 =
                         {
                             'name': field2,
                             'description': field.string,
                             'relation': field.relation,
                             'data': Object.values(data),
-                        });
+                        };
                 }
                 else {
-                    this.state.groupingFields.push({'name': field2, 'description': field.string});
+                    data2 = {'name': field2, 'description': field.string}
                 }
             }
         }
+        // this.state.groupingFields = (field2) ? [data1, data2] : [data1];
+        if (field1 && field2) this.state.groupingFields = [data1, data2];
+        else if (field1) this.state.groupingFields = [data1];
+        else this.state.groupingFields = [];
     }
         async onChangeGroupsLabel(event, model) {
         console.log('OnChangeGroupLabel')
