@@ -23,13 +23,13 @@
             <field name="name">dashboard.dashboard.form</field>
             <field name="model">dashboard.dashboard</field>
             <field name="arch" type="xml">
-                <form string="Dashboard">
+                <form string="Tablero">
                     <group>
-                        <field name="name" widget="char" placeholder="Enter theme name"/>
+                        <field name="name" widget="char" placeholder="Tema o nombre del tablero"/>
                         <field name="indicator_ids" options="{'no_create': True, 'create': False}" />
                     </group>
                     <group>
-                        <button name="cuadro_de_mando.dashboard" string="Ir al Dashboard" type="action"/>
+                        <button name="cuadro_de_mando.dashboard" string="Ir al Tablero" type="action"/>
                     </group>
                 </form>
             </field>

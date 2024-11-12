@@ -5,7 +5,7 @@
         <Layout display="display" className="'o_dashboard overflow-auto h-100 container-fluid'">
             <t t-set-slot="layout-buttons"> 
                 <h3 class="my-auto px-3" t-esc="dashboardName"/>               
-                <button class="btn btn-primary me-3" t-on-click="openNewItem">New item</button>
+                <button class="btn btn-primary me-3" t-on-click="openNewItem">Nuevo Indicador</button>
             </t>
             <t t-set-slot="control-panel-additional-actions">
                 <button t-on-click="openDashboardConfig" class="btn p-0 ms-1 border-0">

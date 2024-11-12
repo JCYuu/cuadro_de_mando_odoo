@@ -17,7 +17,7 @@ export class NewIndicatorDialog extends Component {
         console.log("begin setup()");     
         console.log("setting up dialog");
         console.log(this.props.dashboardId == undefined);
-        this.addButtonText = (this.props.dashboardId != undefined) ? "Add to dashboard" : "Create indicator"
+        this.addButtonText = (this.props.dashboardId != undefined) ? "Agregar al tablero actual" : "Crear indicador"
         console.log(this.addButtonText);
 
         this.actionService = useService("action");
@@ -30,8 +30,8 @@ export class NewIndicatorDialog extends Component {
             {operator: '=', name: 'Igual a'}, 
             {operator: '!=', name: 'Diferente de'}, 
             {operator: '>', name: 'Mayor que'}, 
-            {operator: '<', name: 'Menor que'},
             {operator: '>=', name: 'Mayor o igual que'}, 
+            {operator: '<', name: 'Menor que'},
             {operator: '<=', name: 'Menor o igual que'},  
             {operator: 'ilike', name: 'Contiene'}
         ]
@@ -97,7 +97,7 @@ export class NewIndicatorDialog extends Component {
             console.log('fetched');
             console.log(modules);
         } catch(error){
-            this.showNotification("Error while fetching modules", true);
+            this.showNotification("Error al solicitar la lista de módulos", true);
             console.error('Error fetching modules:', error);
         }
 
@@ -168,7 +168,7 @@ export class NewIndicatorDialog extends Component {
             /*console.log("this.models");
             console.log(this.models);*/
         }catch(error){
-            this.showNotification(`Error fetching models from ${this.state.selectedModule}`, true);
+            this.showNotification(`Error consultando los modelos de ${this.state.selectedModule}`, true);
             console.log(`Error fetching models from ${this.state.selectedModule}:` , error);
         }
     }
@@ -197,7 +197,7 @@ export class NewIndicatorDialog extends Component {
             this.changeSelectableFields();
             this.state.modelIsSelected = true;
         }catch(error) {
-            this.showNotification(`Error retrieving fields from model ${this.selectedModel}`, true);
+            this.showNotification(`Error al solicitar los campos del modelo ${this.selectedModel}`, true);
             console.log(`Error retrieving fields from model ${this.selectedModel}:`, error);
         }
     }
@@ -288,7 +288,7 @@ export class NewIndicatorDialog extends Component {
                 console.log('fetched data');
                 console.log(data);
                 if (await this.indicatorExists(this.state.indicatorName)){
-                    this.showNotification('Indicator with this name already exists, try another one', true);
+                    this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return;
                 }
                 else {
@@ -301,7 +301,7 @@ export class NewIndicatorDialog extends Component {
                                            this.state.aggregation, (this.state.order) ? this.state.order : undefined, this.state.filters);
                 }
             } catch (error){
-                this.showNotification(`An error ocurred while fetching group data for the indicator`, true);
+                this.showNotification(`Ha ocurrido un error durante la creación del indicador`, true);
                 console.log("This error while testing group query: ", error);
                 return;
             }
@@ -320,7 +320,7 @@ export class NewIndicatorDialog extends Component {
                 console.log('non group query')
                 console.log(data)
                 if (await this.indicatorExists(this.state.indicatorName)){
-                    this.showNotification('Indicator with this name already exists, try another one', true);
+                    this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return
                 } 
                 else {
@@ -332,17 +332,17 @@ export class NewIndicatorDialog extends Component {
                                      (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined, this.state.filters);
                 }
             } catch (error) {
-                this.showNotification(`An error ocurred while fetching single data for the indicator`, true);
+                this.showNotification(`Ha ocurrido un error durante la creación del indicador`, true);
                 console.log("This error while testing single query: ", error);
                 return;
             }
         }
         if (this.props.dashboardId) {
-            this.showNotification("Succesfully created and added to dashboard", false)
+            this.showNotification("Indicador agregado al tablero correctamente", false)
             this.props.close();
         }
         else {
-            this.showNotification(`Successfully created ${this.state.indicatorName}`, false)
+            this.showNotification(`"${this.state.indicatorName}" creado correctamente`, false)
             this.actionService.doAction({
                 type: "ir.actions.act_window",
                 name: "Dashboard Indicators",
@@ -376,7 +376,7 @@ export class NewIndicatorDialog extends Component {
             })
             console.log(new_record)
         } catch (error) {
-            this.showNotification(`Server error ocurred while creating the indicator`, true);
+            this.showNotification(`Error en el servidor durante la creación de este indicador`, true);
             console.log("Error at creating indicator:\n", error);
         }
     }
