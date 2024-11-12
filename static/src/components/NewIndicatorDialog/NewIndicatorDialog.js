@@ -45,7 +45,7 @@ export class NewIndicatorDialog extends Component {
             labelsField: "",
             aggregation: "count",
             orderByField: "",
-            order: "asc",
+            order: "",
             dashboardItemType: "",
             moduleIsSelected: false,
             modelIsSelected: false,
@@ -298,7 +298,7 @@ export class NewIndicatorDialog extends Component {
                     this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
                                         this.state.dashboardItemType,  undefined, true,
                                           this.state.groupingFields.map(field => field.name), this.state.groupingLabels,
-                                           this.state.aggregation, this.state.order, this.state.filters);
+                                           this.state.aggregation, (this.state.order) ? this.state.order : undefined, this.state.filters);
                 }
             } catch (error){
                 this.showNotification(`An error ocurred while fetching group data for the indicator`, true);
