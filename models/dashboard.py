@@ -4,8 +4,8 @@ from odoo import models, fields, api
 class Dashboard(models.Model):
     _name = "dashboard.dashboard"
     _description = "A dashboard, what do you expect?"
-    name = fields.Char("Theme", required=True)
-    indicator_ids = fields.Many2many("dashboard.indicator", string="Indicators in this dashboard")
+    name = fields.Char("Tema o nombre del tablero", required=True)
+    indicator_ids = fields.Many2many("dashboard.indicator", string="Indicadores en este dashboard")
 
     @api.model
     def add_indicator_to_dashboard(self, dashboard_id, indicator_id):
