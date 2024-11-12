@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.NumberCard" owl="1">
-        <t t-esc="props.title"/>
-        <div class="fs-1">
+        <div class="fs-2">
+            <t t-esc="props.title"/>
+        </div>
+        <div class="fs-4">
             <t t-if="props.values.groups">
-                <div class="row p-2">
+                <div class="row fw-bolder p-2">
                     <div t-foreach="props.values.headers" t-as="head" t-key="head" t-esc="head" class="col p-2" />
                 </div>
                 <t t-set="group1" t-value="''" />
                 <t t-set="group2" t-value="''" />
-                <div t-foreach="props.values.data" t-as="record" t-key="record" class="row p-2">
+                <div t-foreach="props.values.data" t-as="record" t-key="record" class="row px-2">
                     <div class="col p-2">
                         <t t-if="record[0] != group1" t-esc="record[0]" />
                         <t t-else="" t-esc="''" />
@@ -26,11 +28,11 @@
                 </div>
             </t>
             <t t-else="">
-                <div class="row p-2">
+                <div class="row fw-bolder p-2">
                     <div class="col p-2" t-esc="props.values.labels"/>
                     <div class="col p-2" t-esc="props.values.fields"/>
                 </div>
-                <div t-foreach="props.values.data" t-as="record" t-key="record.label" class="row p-2">
+                <div t-foreach="props.values.data" t-as="record" t-key="record.label" class="row px-2">
                     <div t-esc="record.label" class="col p-2" />
                     <div t-esc="record.field" class="col p-2" />
                 </div>
@@ -38,6 +40,6 @@
         </div>
     </t>
 </templates>
-<!-- <div class="fs-1 fw-bold text-success text-center">
+<!-- <div class="fs-1 fw-bolder text-success text-center">
             <t t-esc="props.values"/>
         </div> -->
