@@ -2,8 +2,42 @@
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.NumberCard" owl="1">
         <t t-esc="props.title"/>
-        <div class="fs-1 fw-bold text-success text-center">
-            <t t-esc="props.value"/>
+        <div class="fs-1">
+            <t t-if="props.values.groups">
+                <div class="row p-2">
+                    <div t-foreach="props.values.headers" t-as="head" t-key="head" t-esc="head" class="col p-2" />
+                </div>
+                <t t-set="group1" t-value="''" />
+                <t t-set="group2" t-value="''" />
+                <div t-foreach="props.values.data" t-as="record" t-key="record" class="row p-2">
+                    <div class="col p-2">
+                        <t t-if="record[0] != group1" t-esc="record[0]" />
+                        <t t-else="" t-esc="''" />
+                    </div>
+                    <t t-set="group1" t-value="record[0]" />
+                    <div class="col p-2">
+                        <t t-if="record[1] == group2 and props.values.groups == 2" t-esc="''" />
+                        <t t-else="" t-esc="record[1]" />
+                    </div>
+                    <t t-set="group2" t-value="record[1]" />
+                    <div t-if="props.values.groups == 2" class="col p-2">
+                        <t t-esc="record[2]"/>
+                    </div>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="row p-2">
+                    <div class="col p-2" t-esc="props.values.labels"/>
+                    <div class="col p-2" t-esc="props.values.fields"/>
+                </div>
+                <div t-foreach="props.values.data" t-as="record" t-key="record.label" class="row p-2">
+                    <div t-esc="record.label" class="col p-2" />
+                    <div t-esc="record.field" class="col p-2" />
+                </div>
+            </t>
         </div>
     </t>
 </templates>
+<!-- <div class="fs-1 fw-bold text-success text-center">
+            <t t-esc="props.values"/>
+        </div> -->

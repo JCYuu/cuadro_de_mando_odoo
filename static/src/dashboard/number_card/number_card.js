@@ -8,8 +8,12 @@ export class NumberCard extends Component {
         title: {
             type: String,
         },
-        value: {
-            type: Number,
+        values: {
+            type: Object,
         }
+    }
+    setup(){
+        console.log(this.props)
+        console.log(this.props.data)
     }
 }
