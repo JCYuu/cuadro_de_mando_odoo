@@ -90,7 +90,7 @@ class IndicatorDashboard extends Component {
     }*/
 
     updateItemsList(item_title, data, component) {
-        if (component == "number"){
+        if (component == "d"){
             console.log("is a numbercard");
             
         }

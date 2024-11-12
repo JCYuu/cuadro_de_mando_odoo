@@ -287,9 +287,9 @@ export class NewIndicatorDialog extends Component {
                 });
                 console.log('fetched data');
                 console.log(data);
-                if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
+               /*  if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
                     return;
-                }
+                } */
                 if (await this.indicatorExists(this.state.indicatorName)){
                     this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return;
@@ -322,9 +322,9 @@ export class NewIndicatorDialog extends Component {
                 });
                 console.log('non group query')
                 console.log(data)
-                if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
+                /* if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
                     return;
-                }
+                } */
                 if (await this.indicatorExists(this.state.indicatorName)){
                     this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return
