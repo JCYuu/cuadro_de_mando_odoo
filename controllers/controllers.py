@@ -126,10 +126,10 @@ class IndicatorDashboard(http.Controller):
                 'datasets': graph_dataset
             }
         else:
-            data_json = {record[labels]: record[field] for record in main_data}
+            data_json = {'data': [{'label': record[labels], 'field': record[field]} for record in main_data]}
             fields_data = self.get_model_fields(model_name)
             field_strings = request.env[model_name].fields_get([field, labels], ['string'])
-            data_json['field'] = field_strings[field]['string']
+            data_json['fields'] = field_strings[field]['string']
             data_json['labels'] = field_strings[labels]['string']
             # print(data_json)
             return data_json
@@ -160,7 +160,8 @@ class IndicatorDashboard(http.Controller):
         print('graph', graph)
         if domain:
             domain = [tuple(filter) for filter in domain]
-        field_name = request.env[model_name].fields_get([field])[field]['string']
+        fields_info = request.env[model_name].fields_get([field]+group_by)
+        field_name = fields_info[field]['string']
         lang = request.env.user.lang
         order = {"asc": False, "desc": True}
         print(lang)
@@ -174,8 +175,9 @@ class IndicatorDashboard(http.Controller):
             labelled_data = list(sorted(labelled_data, key=lambda item: item[-1], reverse=order[order_by]))
             print(labelled_data)
         data_json = dict()
+        groups = len(group_by)
         if not graph:
-            if len(group_by) == 2:
+            if groups == 2:
                 for record in labelled_data:
                     if record[0] in data_json:
                         data_json[record[0]] |= {
@@ -189,9 +191,9 @@ class IndicatorDashboard(http.Controller):
                                 f'{agg}_{field}': record[2]
                             }
                         }
-                    data_json['groups'] = 2
+                    
                 print(data_json)
-                return data_json
+                
             else:
                 for record in labelled_data:
                     if record[0] in data_json:
@@ -202,9 +204,10 @@ class IndicatorDashboard(http.Controller):
                         data_json[record[0]] = {
                             f'{agg}_{field}': record[1]
                         }
-                    data_json['groups'] = 1
+                    
                 print(data_json)
-                return data_json
+            return {'data': labelled_data, 'data_json': data_json, 'groups': groups,
+                    'headers': [fields_info[field]['string'] for field in group_by]+[field_name]}
         else:
             labels, datasets = [], []
             for record in labelled_data:
