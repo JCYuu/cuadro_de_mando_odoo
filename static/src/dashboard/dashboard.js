@@ -101,7 +101,7 @@ class IndicatorDashboard extends Component {
                     title: item_title,
                     values: data
                 },
-                height: 1
+                height: 1,
             });
         }
         else {
