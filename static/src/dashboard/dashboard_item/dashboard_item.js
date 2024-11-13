@@ -19,6 +19,9 @@ export class DashboardItem extends Component {
         height: {
             type: Number,
             optional: true
+        },
+        title: {
+            type: String
         }
     };
 }

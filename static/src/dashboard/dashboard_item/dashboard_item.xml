@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.DashboardItem">
-        <div class="card m-2 shadow" t-attf-style="width: {{18*props.size}}rem; height: {{(props.height) ? 18*props.height : 'auto'}}">
-            <div class="card-body">
+        <div class="card m-2 shadow" t-attf-style="width: {{18*props.size}}rem; height: {{(props.height) ? `${25*props.height}rem` : 'auto'}}">
+            <div class="card-header p-2 fs-5 fw-bold" t-esc="props.title"></div>
+            <div class="card-body overflow-auto">
                 <t t-slot="default"/>
             </div>
         </div>
