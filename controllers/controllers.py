@@ -113,6 +113,7 @@ class IndicatorDashboard(http.Controller):
         print('labels', labels)
         print('field', field)
         print("order by", order_by)
+        field_strings = request.env[model_name].fields_get([field, labels], ['string'])
         if domain:
             print('found domain')
             domain = [tuple(filter) for filter in domain]
@@ -120,7 +121,7 @@ class IndicatorDashboard(http.Controller):
         main_data = request.env[model_name].search(domain, order=order_by if order_by else None)
         if graph:
             graph_labels = [record[labels] for record in main_data]
-            graph_dataset = [{'label': field, 'data': [record[field] for record in main_data]}]
+            graph_dataset = [{'label': field_strings[field]['string'], 'data': [record[field] for record in main_data]}]
             return {
                 'labels': graph_labels,
                 'datasets': graph_dataset
@@ -207,13 +208,13 @@ class IndicatorDashboard(http.Controller):
                     
                 print(data_json)
             return {'data': labelled_data, 'data_json': data_json, 'groups': groups,
-                    'headers': [fields_info[field]['string'] for field in group_by]+[field_name]}
+                    'headers': [fields_info[field]['string'] for field in group_by]+['Cantidad' if agg == 'count' else f'{field_name} - {agg}']}
         else:
             labels, datasets = [], []
             for record in labelled_data:
                 if record[0] not in labels: labels.append(record[0])
                 dataset = {
-                    'label': record[1] if len(group_by) == 2 else f'{field_name}:{agg}',
+                    'label': record[1] if len(group_by) == 2 else ('Cantidad' if agg == 'count' else f'{field_name}:{agg}'),
                     'data': []
                 }
                 if dataset not in datasets: datasets.append(dataset)
