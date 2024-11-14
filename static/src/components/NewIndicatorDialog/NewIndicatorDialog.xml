@@ -289,10 +289,10 @@
                         <div class="col p-2">
                             <label class="form-label" for="grouped_fields_selector">Agrupar por: <span class="text-danger">*</span></label>
                             <select id="grouped_field_selector-1" t-if="state.modelIsSelected"
-                                    t-on-change="onChangeGroups" class="form-select">
+                                    t-on-change="onChangeGroups" class="form-select group-selector">
                                 <option value="" selected="true">Escoja un campo para agrupar</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
-                                    <t t-if="['integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
+                                    <t t-if="['datetime', 'integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
                                         <t t-if="field.depends.length &lt; 2">
                                             <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                         </t>
@@ -300,13 +300,13 @@
                                 </t>
                             </select>
                         </div>
-                        <div class="col p-2">
+                        <div class="col p-2" t-if="state.selectedFirstGroup">
                             <label class="form-label" for="grouped_fields_selector">Agrupar por segundo campo:</label>
                             <select id="grouped_field_selector-2" t-if="state.modelIsSelected"
-                                    t-on-change="onChangeGroups" class="form-select">
+                                    t-on-change="onChangeGroups" class="form-select group-selector">
                                 <option value="" selected="true">Escoja un campo para segunda agrupación</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
-                                    <t t-if="['integer', 'selection', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
+                                    <t t-if="['datetime', 'integer', 'selection', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
                                         <t t-if="field.depends.length &lt; 2">
                                             <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                         </t>
@@ -315,18 +315,32 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row p-3" t-if="state.groupingFields.filter(field => field.relation).length">
+                    <div class="row p-3" t-if="(state.groupingFields.filter(field => (field.relation || field.date)).length) or state">
                         <t t-foreach="state.groupingFields" t-as="field" t-key="field.name">
                             <div class="col p-2" t-if="field.data">
                                 <label t-att-for="`${field.name}_selector`" class="form-label"><t t-esc="field.description"/>
                                     identificador: <span class="text-danger">*</span></label>
-                                <select t-att-id="`${field.name}_selector`" class="form-select"
-                                        t-on-change="(event) => this.onChangeGroupsLabel(event, field.relation)">
+                                <select t-att-id="`${field.name}_selector`" class="form-select group-label-selector"
+                                        t-on-change="(event) => this.onChangeGroupsLabel(event, field_index)">
                                     <option value="" selected="true">Escoja un identificador para <t
                                             t-esc="field.description"></t></option>
                                     <t t-foreach="field.data" t-as="relationField" t-key="relationField.name">
                                         <option t-if="relationField.type == 'char'" t-att-value="relationField.name"
                                                 t-esc="`${relationField.string} - Tipo: ${relationField.type}`"></option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col p-2" t-if="field.date">
+                                <label t-att-for="`${field.name}_selector`" class="form-label"><t t-esc="field.description"/>
+                                    granularidad: <span class="text-danger">*</span></label>
+                                <select t-att-id="`${field.name}_selector`" class="form-select group-label-selector"
+                                        t-on-change="(event) => this.onChangeGroupsLabel(event, field_index, true)">
+                                    <option t-att-value="field.name" selected="true">Escoja la granularidad para <t
+                                            t-esc="field.description"></t></option>
+                                    <t t-foreach="[{name: 'Día', granularity: 'day'}, {name: 'Semana', granularity: 'week'}, {name: 'Mes', granularity: 'month'}, {name: 'Trimestre', granularity: 'quarter'}, {name: 'Año', granularity: 'year'}]"
+                                     t-as="granularity" t-key="granularity.name">
+                                        <option t-att-value="`${field.name}-${granularity.granularity}`"
+                                                t-esc="granularity.name"></option>
                                     </t>
                                 </select>
                             </div>
