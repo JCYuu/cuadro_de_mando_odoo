@@ -85,7 +85,7 @@ class IndicatorDashboard(http.Controller):
         print("called get fields")
         print('model name: ', model_name)
         model_fields = request.env[model_name].fields_get()
-        print(model_fields)
+        # print(model_fields)
         return {field: model_fields[field] for field in model_fields}
 
     @http.route('/awesome_dashboard/fetch_for_pie_chart', type='json', auth='user')
@@ -135,8 +135,12 @@ class IndicatorDashboard(http.Controller):
             # print(data_json)
             return data_json
 
+    def get_relations_for_groupby(self, record, group_by):
+        groups = list(map(lambda item: item.split('-'), group_by))
+        return [item[groups[index][1]] if len(groups[index])>1 else item for index, item in enumerate(record[:-1])] + [record[-1]]
+
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
-    def group_query_indicator(self, model_name: str, field: str, group_by: list, domain: list = [], group_by_label: dict = {},
+    def group_query_indicator(self, model_name: str, field: str, group_by: list, domain: list = [], group_by_label: list = [],
                               agg: str = 'count', order_by: str = "", graph: bool = False) -> dict:
         """
         Returns the group query for desired field and specified aggregations.
@@ -156,22 +160,24 @@ class IndicatorDashboard(http.Controller):
         print('field', field)
         print('agg', agg)
         print('group by', group_by)
-        print('group by label', group_by_label)
+        # print('group by label', group_by_label)
         print('Order by', order_by)
         print('graph', graph)
+        group_by_fields = list(map(lambda field: field.split('-')[0], group_by))
         if domain:
             domain = [tuple(filter) for filter in domain]
-        fields_info = request.env[model_name].fields_get([field]+group_by)
+        fields_info = request.env[model_name].fields_get([field]+group_by_fields)
         field_name = fields_info[field]['string']
         lang = request.env.user.lang
         order = {"asc": False, "desc": True}
         print(lang)
         main_data = request.env[model_name].with_context(lang=lang)._read_group(domain, aggregates=[f'{field}:{agg}'],
-                                                                                groupby=[*group_by])
-        labelled_data = []
-        for index, record in enumerate(main_data):
-            labelled_data.append(list(map(lambda item: self.get_relational_label(item, group_by_label), record)))
+                                                                                groupby=[*group_by_fields])
+        labelled_data = list(map(lambda record: self.get_relations_for_groupby(record, group_by), main_data))
+        # for index, record in enumerate(main_data):
+        #     labelled_data.append(list(map()))
         print(labelled_data)
+        
         if order_by in order.keys():
             labelled_data = list(sorted(labelled_data, key=lambda item: item[-1], reverse=order[order_by]))
             print(labelled_data)
@@ -208,7 +214,7 @@ class IndicatorDashboard(http.Controller):
                     
                 print(data_json)
             return {'data': labelled_data, 'data_json': data_json, 'groups': groups,
-                    'headers': [fields_info[field]['string'] for field in group_by]+['Cantidad' if agg == 'count' else f'{field_name} - {agg}']}
+                    'headers': [fields_info[field]['string'] for field in group_by_fields]+['Cantidad' if agg == 'count' else f'{field_name} - {agg}']}
         else:
             labels, datasets = [], []
             for record in labelled_data:
@@ -302,7 +308,7 @@ class IndicatorDashboard(http.Controller):
                         print('indicator labels: ', indicator.group_labels)
                         print('indicator domain:', indicator.domain)
                         data = self.group_query_indicator(indicator.model, indicator.field, group_by, indicator.domain if indicator.domain else [], 
-                                                        indicator.group_labels if indicator.group_labels else {}, indicator.agg, graph=is_graph, order_by=indicator.order_by)
+                                                        indicator.group_labels if indicator.group_labels else [], indicator.agg, graph=is_graph, order_by=indicator.order_by)
                         indicator_list.append({
                             'name': indicator.name,
                             'data': data,
