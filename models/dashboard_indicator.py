@@ -16,7 +16,6 @@ class DashboardIndicator(models.Model):
     graph_type = fields.Char("Tipo de Indicador")
     group_query = fields.Boolean(default=False)
     group_fields = fields.Text("Campos agrupados")
-    group_labels = fields.Json()
     agg = fields.Char("")
     order_by = fields.Char("")
     dashboard_ids = fields.Many2many(comodel_name="dashboard.dashboard", string="Tableros con este indicador:")

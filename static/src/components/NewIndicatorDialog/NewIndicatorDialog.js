@@ -51,7 +51,6 @@ export class NewIndicatorDialog extends Component {
             moduleIsSelected: false,
             modelIsSelected: false,
             groupingFields: [],
-            groupingLabels: {},
             filters: [],
             isGroupQuery: false,
             useFilters: false,
@@ -222,7 +221,6 @@ export class NewIndicatorDialog extends Component {
                         }
                     });
                 });
-                let relationalLabelsCount = Object.values(this.state.groupingLabels).length;
                 if (relationalFieldsNotSet) {  
                     throw "Escoja un identificador para los campos que referencian otras tablas";
                 }
@@ -289,7 +287,6 @@ export class NewIndicatorDialog extends Component {
                     model_name: this.state.selectedModel,
                     field: this.state.selectedField,
                     group_by: this.state.groupingFields.map(field => field.toGroup),
-                    group_by_label: this.state.groupingLabels,
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
                     agg: this.state.aggregation,
                     order_by: this.state.order
@@ -309,7 +306,7 @@ export class NewIndicatorDialog extends Component {
                     }
                     this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
                         this.state.dashboardItemType, undefined, true,
-                        this.state.groupingFields.map(field => field.toGroup), this.state.groupingLabels,
+                        this.state.groupingFields.map(field => field.toGroup),
                         this.state.aggregation, (this.state.order) ? this.state.order : undefined, this.state.filters);
                 }
             } catch (error) {
@@ -373,7 +370,7 @@ export class NewIndicatorDialog extends Component {
 
 
     async createNewIndicator(name, model, field, graph_type, labels = "",
-        group_query = false, group_fields = [], group_labels = {}, agg = "count", order_by = "", domain = []) {
+        group_query = false, group_fields = [], agg = "count", order_by = "", domain = []) {
         try {
             let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
                 "dashboard_id": (this.props.dashboardId) ? this.props.dashboardId : "",
@@ -385,7 +382,6 @@ export class NewIndicatorDialog extends Component {
                 "labels": labels,
                 "group_query": group_query,
                 "group_fields": group_fields,
-                "group_labels": group_labels,
                 "agg": agg,
                 "order_by": order_by,
             })
@@ -496,7 +492,6 @@ export class NewIndicatorDialog extends Component {
         /*         console.log(typeof event.target.value);
                 console.log(typeof model); */
         console.log(this.state.groupingFields);
-        console.log(this.state.groupingLabels);
         try {
             if (!isDate) {
                 let fieldName = this.state.groupingFields[index].name;

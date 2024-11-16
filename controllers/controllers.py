@@ -140,7 +140,7 @@ class IndicatorDashboard(http.Controller):
         return [item[groups[index][1]] if len(groups[index])>1 else item for index, item in enumerate(record[:-1])] + [record[-1]]
 
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
-    def group_query_indicator(self, model_name: str, field: str, group_by: list, domain: list = [], group_by_label: list = [],
+    def group_query_indicator(self, model_name: str, field: str, group_by: list, domain: list = [],
                               agg: str = 'count', order_by: str = "", graph: bool = False) -> dict:
         """
         Returns the group query for desired field and specified aggregations.
@@ -148,7 +148,6 @@ class IndicatorDashboard(http.Controller):
         :param model_name: The model to be queried
         :param field: Field of the model to be query
         :param group_by: list of fields to group by max: 2
-        :param group_by_label: identifiers for relational fields
         :param agg: aggregation function default = count
         :param order_by: list of fields to order by
         :param graph: return formatted json to use with charts.js
@@ -245,7 +244,7 @@ class IndicatorDashboard(http.Controller):
 
     @http.route('/awesome_dashboard/create_indicator', type='json', auth='user')
     def create_new_indicator(self, dashboard_id,  name: str, model: str, field: str, graph_type: str, domain: list = [], labels: str = "",
-                             group_query: bool = False, group_fields: list = [], group_labels: dict = {},
+                             group_query: bool = False, group_fields: list = [],
                              agg: str = 'count', order_by: str = ""):
         """
 
@@ -257,21 +256,20 @@ class IndicatorDashboard(http.Controller):
         :param labels:
         :param group_query:
         :param group_fields:
-        :param group_labels:
         :param agg:
         """
         # if domain:
         #     domain = [tuple(filter) for filter in domain]
         print(domain)
         print(locals())
-        created = self._create_new_indicator(name,  model, field, graph_type, domain, labels, group_query, group_fields, group_labels, agg, order_by)
+        created = self._create_new_indicator(name,  model, field, graph_type, domain, labels, group_query, group_fields, agg, order_by)
         print(dashboard_id)
         if dashboard_id:
             added = request.env['dashboard.dashboard'].add_indicator_to_dashboard(dashboard_id, created.id)
             print("Added to dashboard", added)
 
     def _create_new_indicator(self, name: str,  model: str, field: str, graph_type: str, domain: list = [], labels: str = "",
-                              group_query: bool = False, group_fields: list = [], group_labels: dict = {},
+                              group_query: bool = False, group_fields: list = [],
                               agg: str = 'count', order_by: str = ""):
 
         created = request.env['dashboard.indicator'].create({
@@ -283,7 +281,6 @@ class IndicatorDashboard(http.Controller):
             'graph_type': graph_type,
             'group_query': group_query,
             'group_fields': ','.join(group_fields) if group_fields else "",
-            'group_labels': group_labels,
             'agg': agg,
             'order_by': order_by,
         })
@@ -305,10 +302,9 @@ class IndicatorDashboard(http.Controller):
                     if indicator.group_query:
                         group_by = indicator.get_group_fields()
                         print(group_by)
-                        print('indicator labels: ', indicator.group_labels)
                         print('indicator domain:', indicator.domain)
                         data = self.group_query_indicator(indicator.model, indicator.field, group_by, indicator.domain if indicator.domain else [], 
-                                                        indicator.group_labels if indicator.group_labels else [], indicator.agg, graph=is_graph, order_by=indicator.order_by)
+                                                         indicator.agg, graph=is_graph, order_by=indicator.order_by)
                         indicator_list.append({
                             'name': indicator.name,
                             'data': data,
