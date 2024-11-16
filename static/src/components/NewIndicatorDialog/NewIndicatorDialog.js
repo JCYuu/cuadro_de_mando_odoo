@@ -212,15 +212,22 @@ export class NewIndicatorDialog extends Component {
 
     validateNecessaryFields() {
         if (this.state.isGroupQuery) {
-            if (!this.state.indicatorName || !this.state.selectedModel || !this.state.selectedField || !this.state.selectedFirstGroup || !this.state.dashboardItemType) {
-                if (this.state.groupingFields.length) {
-                    let relationalFieldsNotSet = this.state.groupingFields.filter(field => field.relation && field.name == field.toGroup).length;
-                    console.log('relational fields count', relationalFieldsNotSet)
-                    let relationalLabelsCount = Object.values(this.state.groupingLabels).length;
-                    if (relationalFieldsNotSet) {
-                        throw "Escoja un identificador para los campos que referencian otras tablas";
-                    }
+            if (this.state.groupingFields.length) {
+                let relationalFieldsNotSet = this.state.groupingFields.filter(field => field.relation && field.name == field.toGroup).length;
+                console.log('relational fields count', relationalFieldsNotSet)
+                this.state.groupingFields.forEach((field, index) => {
+                    this.state.groupingFields.forEach((field2, index2) => {
+                        if ((index !== index2) && !field.date && (field.name == field2.name)) {
+                            throw "No se puede agrupar dos veces por el mismo campo si no es un campo fecha";
+                        }
+                    });
+                });
+                let relationalLabelsCount = Object.values(this.state.groupingLabels).length;
+                if (relationalFieldsNotSet) {  
+                    throw "Escoja un identificador para los campos que referencian otras tablas";
                 }
+            }
+            if (!this.state.indicatorName || !this.state.selectedModel || !this.state.selectedField || !this.state.selectedFirstGroup || !this.state.dashboardItemType) {
                 throw "Rellene todos los campos necesarios. Los campos marcados con '*' son obligatorios";
             }
         }
