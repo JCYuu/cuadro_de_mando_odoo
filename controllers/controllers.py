@@ -76,7 +76,12 @@ class IndicatorDashboard(http.Controller):
         model_data_records = request.env['ir.model.data'].search([("module", "=", module_name)])
         model_names = request.env['ir.model'].search([('id', 'in', model_data_records.mapped('res_id'))])
         model_list = [{'model': model.model, 'model_name': model.name} for model in model_names if
-                      self.check_user_access_rights(model)]
+                      self.check_user_access_rights(model) and model.model.split('.')[0] in module_name]
+        # model_list = []
+        # for model in model_names:
+        #     if self.check_user_access_rights(model) and model.model.split('.')[0] in module_name:
+        #         print(request.env.registry.is_an_ordinary_table())
+        #         model_list.append({'model': model.model, 'model_name': model.name})
         print(model_list)
         return model_list
 
@@ -223,18 +228,27 @@ class IndicatorDashboard(http.Controller):
                     'data': []
                 }
                 if dataset not in datasets: datasets.append(dataset)
-            for record in labelled_data:
-                for dataset in datasets:
-                    label = record[1] if len(group_by) == 2 else None
-                    # print(dataset)
-                    # print(label, label and label == dataset['label'])
-                    # print('--------changing--------')
-                    if label == dataset['label']:
-                        dataset['data'].append(int(record[-1]))
-                    elif not label:
-                        dataset['data'].append(int(record[-1]))
-                    else:
-                        dataset['data'].append(0)
+            # for record in labelled_data:
+            #     label = record[1] if len(group_by) == 2 else None
+            #     for dataset in datasets:
+            #         # print(dataset)
+            #         # print(label, label and label == dataset['label'])
+            #         # print('--------changing--------')
+            #         if label == dataset['label']:
+            #             dataset['data'].append(int(record[-1]))
+            #         elif not label:
+            #             dataset['data'].append(int(record[-1]))
+            #         else:
+            #             dataset['data'].append(0)
+            for dataset in datasets:
+                if len(group_by) == 2:
+                    for record in labelled_data:
+                        if record[1] == dataset['label']:
+                            dataset['data'].append(int(record[-1]))
+                        if labels.index(record[0]) > len(dataset['data']):
+                            dataset['data'].append(0)
+                else:
+                    dataset['data'] = [int(record[-1]) for record in labelled_data]     
             graph_data = {
                 'labels': labels,
                 'datasets': datasets
