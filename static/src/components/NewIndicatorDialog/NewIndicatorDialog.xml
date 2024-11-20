@@ -57,7 +57,7 @@
                                 <option value="" selected="true">Escoja un campo</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
                                     <option t-att-value="field.name"
-                                            t-if="['integer', 'char', 'monetary', 'float', 'text', 'boolean'].includes(field.type)"
+                                            t-if="['integer', 'char', 'monetary', 'float', 'text', 'boolean'].includes(field.type) and field.store"
                                             t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                 </t>
                             </select>
@@ -159,9 +159,9 @@
                         <div class="col p-2">
                             <label class="form-label" for="item_type_selector">Tipo de visualización: <span class="text-danger">*</span></label>
                             <t t-set="item_types"
-                               t-value="[{type: 'number', name: 'Number Card'}, {type: 'pie', name: 'Pie Chart'}, {type: 'bar', name: 'Bar Chart'}, {type: 'line', name: 'Line Chart'}]"/>
+                               t-value="[{type: 'number', name: 'Texto'}, {type: 'pie', name: 'Gráfico de pastel'}, {type: 'bar', name: 'Gráfico de barras'}, {type: 'line', name: 'Gráfico de líneas'}]"/>
                             <select id="item_type_selector" t-model="state.dashboardItemType" class="form-select">
-                                <option value="" selected="true">Escoja el tipo de indicador</option>
+                                <option value="" selected="true">Escoja el tipo de vista para el indicador</option>
                                 <t t-foreach="item_types" t-as="item" t-key="item.type">
                                     <option t-att-value="item.type" t-esc="item.name"></option>
                                 </t>
@@ -292,7 +292,7 @@
                                     t-on-change="onChangeGroups" class="form-select group-selector">
                                 <option value="" selected="true">Escoja un campo para agrupar</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
-                                    <t t-if="['datetime', 'integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
+                                    <t t-if="['date', 'datetime', 'integer', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type) and field.store">
                                         <t t-if="field.depends.length &lt; 2">
                                             <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                         </t>
@@ -306,7 +306,7 @@
                                     t-on-change="onChangeGroups" class="form-select group-selector">
                                 <option value="" selected="true">Escoja un campo para segunda agrupación</option>
                                 <t t-foreach="Object.values(fields)" t-as="field" t-key="field.name">
-                                    <t t-if="['datetime', 'integer', 'selection', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type)">
+                                    <t t-if="['date', 'datetime', 'integer', 'selection', 'char', 'float', 'text', 'boolean', 'many2one', 'many2many'].includes(field.type) and field.store">
                                         <t t-if="field.depends.length &lt; 2">
                                             <option t-att-value="field.name" t-esc="`${field.string} - Tipo: ${field.type}`"></option>
                                         </t>
@@ -400,9 +400,9 @@
                         <div class="col p-2">
                             <label class="form-label" for="item_type_selector">Tipo de visualización: <span class="text-danger">*</span></label>
                             <t t-set="item_types"
-                               t-value="[{type: 'number', name: 'Number Card'}, {type: 'pie', name: 'Pie Chart'}, {type: 'bar', name: 'Bar Chart'}, {type: 'line', name: 'Line Chart'}]"/>
+                               t-value="[{type: 'number', name: 'Texto'}, {type: 'pie', name: 'Gráfico de pastel'}, {type: 'bar', name: 'Gráfico de barras'}, {type: 'line', name: 'Gráfico de líneas'}]"/>
                             <select id="item_type_selector" t-model="state.dashboardItemType" class="form-select">
-                                <option value="" selected="true">Escoja el tipo de indicador</option>
+                                <option value="" selected="true">Escoja el tipo de vista para el indicador</option>
                                 <t t-foreach="item_types" t-as="item" t-key="item.type">
                                     <option t-att-value="item.type" t-esc="item.name"></option>
                                 </t>
