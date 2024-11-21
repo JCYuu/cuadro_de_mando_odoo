@@ -75,13 +75,13 @@ class IndicatorDashboard(http.Controller):
         print(module_name)
         model_data_records = request.env['ir.model.data'].search([("module", "=", module_name)])
         model_names = request.env['ir.model'].search([('id', 'in', model_data_records.mapped('res_id'))])
-        model_list = [{'model': model.model, 'model_name': model.name} for model in model_names if
-                      self.check_user_access_rights(model) and model.model.split('.')[0] in module_name]
-        # model_list = []
-        # for model in model_names:
-        #     if self.check_user_access_rights(model) and model.model.split('.')[0] in module_name:
-        #         print(request.env.registry.is_an_ordinary_table())
-        #         model_list.append({'model': model.model, 'model_name': model.name})
+        # model_list = [{'model': model.model, 'model_name': model.name} for model in model_names if
+        #               self.check_user_access_rights(model) and model.model.split('.')[0] in module_name]
+        model_list = []
+        for model in model_names:
+            if self.check_user_access_rights(model) and model.model.split('.')[0] in module_name:
+                print(model.model)
+                model_list.append({'model': model.model, 'model_name': model.name})
         print(model_list)
         return model_list
 
