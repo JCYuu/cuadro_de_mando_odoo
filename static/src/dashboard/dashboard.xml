@@ -17,7 +17,7 @@
                 <t t-foreach="addedItems" t-as="item" t-key="item.id">
                     <div class="col-auto">
                         <DashboardItem size="item.size || 1" height="item.height || undefined" title="item.props.title" id="item.id">
-                            <t t-set="itemProp" t-value="item.props ? item.props : {'data': statistics}"/>
+                            <t t-set="itemProp" t-value="item.props"/>
                             <t t-component="item.Component" t-props="itemProp"/>
                         </DashboardItem>
                     </div>

@@ -22,25 +22,9 @@ export class BarChart extends Component {
     }
 
     renderChart() {
-        console.log('inside bar chart render');
         const labels = this.props.graph_data.labels;
         const datasets = this.props.graph_data.datasets;
         const color = labels.map((_, index) => getColor(index));
-        console.log(labels);
-        console.log(datasets);
-        /*this.chart = new Chart(this.canvasRef.el, {
-            type: "pie",
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: this.props.label,
-                        data: data,
-                        backgroundColor: color,
-                    },
-                ],
-            },
-        });*/
         this.chart = new Chart(this.canvasRef.el, {
             type: "bar",
             data: {

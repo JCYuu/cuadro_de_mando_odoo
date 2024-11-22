@@ -26,7 +26,6 @@ class IndicatorDashboard extends Component {
 
     setup() {
         this.action = useService("action");
-        this.statistics = useState(useService("awesome_dashboard.statistics"));
         this.dialog = useService("dialog");
         this.rpc = useService("rpc");
         this.orm = useService("orm");
@@ -41,14 +40,7 @@ class IndicatorDashboard extends Component {
         this.state = useState({
             disabledItems: browser.localStorage.getItem("disabledDashboardItems")?.split(",") || [],
         });
-        console.log("the items");
-        console.log(this.items);        
-        console.log("after calling fetch indicators");
-        console.log(this.props);
         const params = this.props.params;
-        console.log("params", params);
-        console.log("id", this.dashboardId);
-        console.log(this.props.params.test_param);
         const record = params.current_record;
         console.log("record", record);
 
@@ -74,7 +66,7 @@ class IndicatorDashboard extends Component {
     }
 
     async fetchIndicators(){
-        console.log('entered fetch');   
+        console.log('---Fetching indicators---');   
         this.addedItems.length = 0;     
         let indicators = await this.rpc('/awesome_dashboard/retrieve_indicator', {
             dashboard_id: this.dashboardId
@@ -87,7 +79,6 @@ class IndicatorDashboard extends Component {
 
     updateItemsList(item_title, data, component, item_id) {
         if (component == "number"){
-            console.log("is a numbercard");
             this.addedItems.push({
                 id: item_id,
                 description: "new item description",
@@ -112,7 +103,7 @@ class IndicatorDashboard extends Component {
                 }
             });
         }
-        console.log("updated items?")
+        console.log("INFO: pdated indicators list")
         console.log(this.addedItems);
         return true
     }
@@ -123,7 +114,8 @@ class IndicatorDashboard extends Component {
             dashboardId: this.dashboardId,
         });
     }
-    openConfiguration() {
+
+    /* openConfiguration() {
         console.log("in OpenConfiguration");
         console.log(this.modules.list);
         console.log(this.items);
@@ -137,7 +129,7 @@ class IndicatorDashboard extends Component {
 
     updateConfiguration(newDisabledItems) {
         this.state.disabledItems = newDisabledItems;
-    }
+    } */
 }
 
 class NewItemDialog extends Component {
@@ -153,7 +145,7 @@ class NewItemDialog extends Component {
 
 }
 
-class ConfigurationDialog extends Component {
+/* class ConfigurationDialog extends Component {
     static template = "cuadro_de_mando.ConfigurationDialog";
     static components = { Dialog, CheckBox };
     static props = ["close", "items", "disabledItems", "onUpdateConfiguration", "modules"];
@@ -165,13 +157,7 @@ class ConfigurationDialog extends Component {
                 enabled: !this.props.disabledItems.includes(item.id),
             }
         }));
-        console.log("before setting modules");
-        console.log(this.props.modules);
-        console.log(this.props.items);
         this.modules = useState(this.props.modules);
-        console.log("after setting modules");
-        console.log(this.modules);
-        console.log(this.items);
     }
 
     done() {
@@ -192,6 +178,6 @@ class ConfigurationDialog extends Component {
         this.props.onUpdateConfiguration(newDisabledItems);
     }
 
-}
+} */
 
 registry.category("lazy_components").add("IndicatorDashboard", IndicatorDashboard);

@@ -14,12 +14,8 @@ export class NewIndicatorDialog extends Component {
     static props = ["close", "updateItems", "dashboardId", "*"]
 
     setup() {
-        console.log(this.props)
-        console.log("begin setup()");
-        console.log("setting up dialog");
-        console.log(this.props.dashboardId == undefined);
+        console.log("INFO: Setting up dialog");
         this.addButtonText = (this.props.dashboardId != undefined) ? "Agregar al tablero actual" : "Crear indicador"
-        console.log(this.addButtonText);
 
         this.actionService = useService("action");
         this.ormService = useService("orm");
@@ -65,19 +61,17 @@ export class NewIndicatorDialog extends Component {
             let singleTabButton = document.getElementById('single-tab');
             let groupTabButton = document.getElementById('group-tab');
             singleTabButton.addEventListener('show.bs.tab', event => {
-                console.log('entered event')
                 this.state.isGroupQuery = false;
                 this.state.selectedField = ""
                 this.resetFilters();
             });
             groupTabButton.addEventListener('show.bs.tab', event => {
-                console.log('entered event')
                 this.state.isGroupQuery = true;
                 this.state.selectedField = ""
                 this.resetFilters();
             });
         });
-        console.log("finished setting up");
+        console.log("INFO: Finished setting up dialog");
     }
 
     resetFilters() {
@@ -90,13 +84,12 @@ export class NewIndicatorDialog extends Component {
 
     async fetchModules() {
         try {
-            console.log("entered fetching modules");
+            console.log("INFO: Fetching modules");
             let modules = await this.rpc("/awesome_dashboard/modules");
 
             this.modules = modules;
 
-            console.log('fetched');
-            console.log(modules);
+            console.log('Modules: ', modules);
         } catch (error) {
             this.showNotification("Error al solicitar la lista de módulos", true);
             console.error('Error fetching modules:', error);
@@ -107,7 +100,6 @@ export class NewIndicatorDialog extends Component {
     changeValueFilter(event) {
         let theElement = event.target.parentElement.nextElementSibling.nextElementSibling.querySelector('.filter-value-input');
         let [, fieldType] = event.target.value.split('-');
-        console.log(fieldType);
         if (['char', 'text'].includes(fieldType)) {
             theElement.type = 'text';
         }
@@ -148,7 +140,7 @@ export class NewIndicatorDialog extends Component {
             this.state.modelIsSelected = false;
             this.state.modelIsSelected = true;
         }
-        console.log("selectable fields", this.selectableFields);
+        console.log("Selectable fields", this.selectableFields);
     }
 
     showNotification(message, error) {
@@ -160,17 +152,13 @@ export class NewIndicatorDialog extends Component {
 
     async fetchModels() {
         this.state.moduleIsSelected = false;
-        // console.log(this.state.selectedModule);
         try {
             let models = await this.rpc("/awesome_dashboard/models", { module_name: this.state.selectedModule });
-            // console.log(models);
             this.models = models;
             this.state.moduleIsSelected = true;
-            /*console.log("this.models");
-            console.log(this.models);*/
         } catch (error) {
             this.showNotification(`Error consultando los modelos de ${this.state.selectedModule}`, true);
-            console.log(`Error fetching models from ${this.state.selectedModule}:`, error);
+            console.error(`Error fetching models from ${this.state.selectedModule}:`, error);
         }
     }
 
@@ -181,32 +169,28 @@ export class NewIndicatorDialog extends Component {
     }
 
     changeAggregation(event, agg) {
-        console.log(event);
         if (event.target.checked) {
             this.state.aggregation = agg;
-            console.log(this.state.aggregation);
         }
         this.changeSelectableFields();
     }
     async fetchModelFields() {
         this.state.modelIsSelected = false;
-        console.log(this.state.selectedModel);
+        console.log(`INFO: Fetching field info for ${this.state.selectedModel}`);
         try {
             let fields = await this.rpc("/awesome_dashboard/model_fields", { model_name: this.state.selectedModel });
-            console.log(fields);
+            console.log('Field info: ', fields);
             this.fields = fields;
             this.changeSelectableFields();
             this.state.modelIsSelected = true;
         } catch (error) {
             this.showNotification(`Error al solicitar los campos del modelo ${this.selectedModel}`, true);
-            console.log(`Error retrieving fields from model ${this.selectedModel}:`, error);
+            console.error(`Error retrieving fields from model ${this.selectedModel}:`, error);
         }
     }
 
     async fetchRelationalFieldsData(model) {
         let data = await this.rpc("/awesome_dashboard/model_fields", { model_name: model });
-        console.log(model);
-        console.log(data);
         return data
     }
 
@@ -214,7 +198,6 @@ export class NewIndicatorDialog extends Component {
         if (this.state.isGroupQuery) {
             if (this.state.groupingFields.length) {
                 let relationalFieldsNotSet = this.state.groupingFields.filter(field => field.relation && field.name == field.toGroup).length;
-                console.log('relational fields count', relationalFieldsNotSet)
                 this.state.groupingFields.forEach((field, index) => {
                     this.state.groupingFields.forEach((field2, index2) => {
                         if ((index !== index2) && !field.date && (field.name == field2.name)) {
@@ -239,7 +222,7 @@ export class NewIndicatorDialog extends Component {
 
     retrieveTheFilters() {
         this.state.filters = [];
-        console.log('entered retrieving filters')
+        console.log('INFO: Retrieving filters')
         let filterRows = document.getElementById((!this.state.isGroupQuery) ? 'single-filters-row' : 'group-filters-row').children;
         for (const element of filterRows) {
             if (element.className.includes('filter-buttons')) break;
@@ -264,7 +247,6 @@ export class NewIndicatorDialog extends Component {
 
     async indicatorExists(name) {
         let indicators = await this.ormService.searchRead('dashboard.indicator', [['name', '=', name]], ['name']);
-        console.log(indicators);
         return indicators.length > 0;
     }
 
@@ -277,13 +259,13 @@ export class NewIndicatorDialog extends Component {
             this.validateNecessaryFields();
         } catch (error) {
             this.showNotification(error, true);
-            console.log("This error in filters or validation: ", error);
+            console.error("This error in filters or validation: ", error);
             return;
         }
         let newIndicatorId;
         if (this.state.isGroupQuery) {
             try {
-                console.log(this.state.dashboardItemType)
+                console.log('INFO: Fetching new indicator using group query');
                 let data = await this.rpc('/awesome_dashboard/group_query', {
                     domain: this.state.filters,
                     model_name: this.state.selectedModel,
@@ -293,8 +275,7 @@ export class NewIndicatorDialog extends Component {
                     agg: this.state.aggregation,
                     order_by: this.state.order
                 });
-                console.log('fetched data');
-                console.log(data);
+                console.log('Indicator data:', data);
                 /*  if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
                      return;
                  } */
@@ -313,13 +294,13 @@ export class NewIndicatorDialog extends Component {
                 }
             } catch (error) {
                 this.showNotification(`Ha ocurrido un error durante la creación del indicador`, true);
-                console.log("This error while testing group query: ", error);
+                console.error("This error while testing group query: ", error);
                 return;
             }
         }
         else {
             try {
-                console.log(this.state.dashboardItemType)
+                console.log('INFO: Fetching new indicator using single query');
                 let data = await this.rpc('/awesome_dashboard/indicator_query', {
                     domain: this.state.filters,
                     model_name: this.state.selectedModel,
@@ -328,8 +309,7 @@ export class NewIndicatorDialog extends Component {
                     order_by: (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : "",
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
                 });
-                console.log('non group query')
-                console.log(data)
+                console.log('Indicator data: ', data);
                 /* if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
                     return;
                 } */
@@ -347,7 +327,7 @@ export class NewIndicatorDialog extends Component {
                 }
             } catch (error) {
                 this.showNotification(`Ha ocurrido un error durante la creación del indicador`, true);
-                console.log("This error while testing single query: ", error);
+                console.error("This error while testing single query: ", error);
                 return;
             }
         }
@@ -390,17 +370,15 @@ export class NewIndicatorDialog extends Component {
                 "agg": agg,
                 "order_by": order_by,
             })
-            console.log(newRecordId);
             return newRecordId;
         } catch (error) {
             this.showNotification(`Error en el servidor durante la creación de este indicador`, true);
-            console.log("Error at creating indicator:\n", error);
+            console.error("Error at creating indicator:\n", error);
         }
     }
 
 
     async onChangeGroups(event) {
-        console.log("entered on change");
         const groupSelectors = document.querySelectorAll(".group-selector");
         if (event.target.id == "grouped_field_selector-1" && !event.target.value){
             this.state.selectedFirstGroup = false;
@@ -415,7 +393,6 @@ export class NewIndicatorDialog extends Component {
             let fieldName = selector.value;
             if (fieldName) {
                 for (const field of Object.values(this.fields)) {
-                // console.log(`we are in field ${field.name}`)
                     if (fieldName == field.name) { 
                         let toGroup = fieldName;
                         if (field.relation) {
@@ -442,74 +419,21 @@ export class NewIndicatorDialog extends Component {
 
         }
 
-
-        // this.state.groupingFields = [];
-        /* for (const field of Object.values(this.fields)) {
-            console.log(`we are in field ${field.name}`)
-            if (field1 && field1 == field.name) {
-                let toGroup = this.state.groupingFields[0].toGroup ? this.state.groupingFields[0].toGroup : field1;
-                if (field.relation) {
-                    let data = await this.fetchRelationalFieldsData(field.relation);
-                    data1 =
-                    {
-                        'name': field1,
-                        'description': field.string,
-                        'relation': field.relation,
-                        'data': Object.values(data),
-                        'toGroup': toGroup
-                    }
-                }
-                else if (field.type == 'datetime') {
-                    data1 = { 'name': field1, 'description': field.string, 'date': true, 'toGroup': toGroup };
-                }
-                else {
-                    data1 = { 'name': field1, 'description': field.string, 'toGroup': toGroup };
-                }
-            }
-            if (field1 && field2 && field2 == field.name) {
-                let toGroup = this.state.groupingFields[1].toGroup ? this.state.groupingFields[1].toGroup : field2;
-                if (field.relation) {
-                    let data = await this.fetchRelationalFieldsData(field.relation);
-                    data2 =
-                    {
-                        'name': field2,
-                        'description': field.string,
-                        'relation': field.relation,
-                        'data': Object.values(data),
-                        'toGroup': toGroup
-                    };
-                }
-                else if (field.type == 'datetime') {
-                    data2 = { 'name': field2, 'description': field.string, 'date': true, 'toGroup': toGroup };
-                }
-                else {
-                    data2 = { 'name': field2, 'description': field.string, 'toGroup': toGroup }
-                }
-            }
-        }// this.state.groupingFields = (field2) ? [data1, data2] : [data1];
-        if (field1 && field2) this.state.groupingFields = [data1, data2];
-        else if (field1) this.state.groupingFields = [data1];
-        else this.state.groupingFields = [];
-        this.state.groupingLabels = this.state.groupingFields.map(field => { name: field.name }); */
     }
 
     async onChangeGroupsLabel(event, index, isDate = false) {
-        console.log('OnChangeGroupLabel')
-        console.log(this.state.groupingFields);
         try {
             if (!isDate) {
                 let fieldName = this.state.groupingFields[index].name;
                 this.state.groupingFields[index].toGroup = (event.target.value) ? `${fieldName}-${event.target.value}` : fieldName;
-                console.log(this.state.groupingFields);
             }
             else {
                 let [fieldIndex, granularity] = event.target.value.split('-');
                 this.state.groupingFields[index].toGroup = (granularity) ? `${this.state.groupingFields[index].name}:${granularity}` : fieldName;
-                console.log(this.state.groupingFields);
             }
         } catch (error) {
             this.showNotification(`Error in onchangeGroupLabel`, true);
-            console.log('error in the group label: ', error);
+            console.error('error in the group label: ', error);
         }
 
     }
