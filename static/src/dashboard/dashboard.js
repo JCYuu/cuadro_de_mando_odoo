@@ -42,8 +42,7 @@ class IndicatorDashboard extends Component {
             disabledItems: browser.localStorage.getItem("disabledDashboardItems")?.split(",") || [],
         });
         console.log("the items");
-        console.log(this.items);
-        this.fetchIndicators();
+        console.log(this.items);        
         console.log("after calling fetch indicators");
         console.log(this.props);
         const params = this.props.params;
@@ -57,15 +56,16 @@ class IndicatorDashboard extends Component {
             let dashboard = await this.orm.searchRead('dashboard.dashboard', [['id', '=', this.dashboardId]], ['name']);
             this.dashboardName = dashboard[0].name;
             console.log(this.dashboardName);
+            await this.fetchIndicators();
         })
     }
 
     openDashboardConfig(){
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: "Form config",
+            name: "Configuración del Tablero",
             res_model: "dashboard.dashboard",
-            target: 'new',
+            target: 'current',
             views: [
                 [false, "form"],
             ],
@@ -74,26 +74,22 @@ class IndicatorDashboard extends Component {
     }
 
     async fetchIndicators(){
+        console.log('entered fetch');   
+        this.addedItems.length = 0;     
         let indicators = await this.rpc('/awesome_dashboard/retrieve_indicator', {
             dashboard_id: this.dashboardId
         });
         console.log(indicators);
         for (const indicator of indicators) {
-            this.updateItemsList(indicator.name, indicator.data, indicator.graph);
+            this.updateItemsList(indicator.name, indicator.data, indicator.graph, indicator.id);
         }
     }
 
-  /*  onWillMounted(){
-        const params = this.props.params;
-        const record = params.current_record;
-        console.log("record", record);
-    }*/
-
-    updateItemsList(item_title, data, component) {
+    updateItemsList(item_title, data, component, item_id) {
         if (component == "number"){
             console.log("is a numbercard");
             this.addedItems.push({
-                id: item_title,
+                id: item_id,
                 description: "new item description",
                 Component: this.component_types[component],
                 size: 2,
@@ -106,7 +102,7 @@ class IndicatorDashboard extends Component {
         }
         else {
             this.addedItems.push({
-                id: item_title,
+                id: item_id,
                 description: "new item description",
                 Component: this.component_types[component],
                 size: 2,
@@ -123,8 +119,8 @@ class IndicatorDashboard extends Component {
 
     openNewItem() {
         this.dialog.add(NewItemDialog, {
-            updateItems: this.updateItemsList.bind(this),
-            dashboardId: this.dashboardId
+            updateItems: this.fetchIndicators.bind(this),
+            dashboardId: this.dashboardId,
         });
     }
     openConfiguration() {
@@ -141,22 +137,6 @@ class IndicatorDashboard extends Component {
 
     updateConfiguration(newDisabledItems) {
         this.state.disabledItems = newDisabledItems;
-    }
-
-    openCustomerView() {
-        this.action.doAction("base.action_partner_form");
-    }
-
-    openLeads() {
-        this.action.doAction({
-            type: "ir.actions.act_window",
-            name: "All leads",
-            res_model: "crm.lead",
-            views: [
-                [false, "list"],
-                [false, "form"],
-            ],
-        });
     }
 }
 
