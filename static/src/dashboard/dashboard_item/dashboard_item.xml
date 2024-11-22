@@ -2,7 +2,14 @@
 <templates xml:space="preserve">
     <t t-name="cuadro_de_mando.DashboardItem">
         <div class="card m-2 shadow" t-attf-style="width: {{18*props.size}}rem; height: {{(props.height) ? `${25*props.height}rem` : 'auto'}}">
-            <div class="card-header p-2 fs-5 fw-bold" t-esc="props.title"></div>
+            <div class="card-header row justify-content-between m-0 p-2 fs-5 fw-bold">
+                <div class="col-auto align-content-center px-0">
+                    <t t-esc="props.title"/>
+                </div>
+                <div class="col-auto align-content-center px-0">
+                    <button class="btn px-0 ms-1 border-0" t-on-click="openIndicatorConfiguration"><i class="fa fa-cog"></i></button>
+                </div>
+            </div>
             <div class="card-body overflow-auto">
                 <t t-slot="default"/>
             </div>

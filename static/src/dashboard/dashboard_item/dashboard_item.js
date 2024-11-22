@@ -1,6 +1,7 @@
 /** @odoo-module */
 
 import { Component } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 
 export class DashboardItem extends Component {
     static template = "cuadro_de_mando.DashboardItem"
@@ -22,6 +23,26 @@ export class DashboardItem extends Component {
         },
         title: {
             type: String
+        },
+        id: {
+            type: String
         }
     };
+
+    setup (){
+        this.actionService = useService('action');
+    }
+
+    openIndicatorConfiguration(){
+        this.actionService.doAction({
+                    type: "ir.actions.act_window",
+                    name: "Configuración de Indicador",
+                    res_model: "dashboard.indicator",
+                    target: 'current',
+                    views: [
+                        [false, "form"],
+                    ],
+                    res_id: this.props.id,
+                });   
+    }
 }

@@ -16,7 +16,7 @@
             <div class="d-flex flex-wrap">
                 <t t-foreach="addedItems" t-as="item" t-key="item.id">
                     <div class="col-auto">
-                        <DashboardItem size="item.size || 1" height="item.height || undefined" title="item.props.title">
+                        <DashboardItem size="item.size || 1" height="item.height || undefined" title="item.props.title" id="item.id">
                             <t t-set="itemProp" t-value="item.props ? item.props : {'data': statistics}"/>
                             <t t-component="item.Component" t-props="itemProp"/>
                         </DashboardItem>
@@ -26,7 +26,7 @@
         </Layout>    
     </t>
 
-    <t t-name="cuadro_de_mando.ConfigurationDialog">
+    <!-- <t t-name="cuadro_de_mando.ConfigurationDialog">
         <Dialog title="'Dashboard items configuration'">
             Which cards do you wish to see ?
             <t t-foreach="items" t-as="item" t-key="item.id">
@@ -48,10 +48,10 @@
 
 
         </Dialog>
-    </t>
+    </t> -->
 
     <t t-name="cuadro_de_mando.NewItemDialog">
-        <Dialog title="'New Indicator'">
+        <Dialog title="'Nuevo Indicador'">
             <NewIndicatorDialog close="props.close" updateItems="props.updateItems" dashboardId="props.dashboardId"/>
             <t t-set-slot="footer">
                 <button class="btn btn-primary d-none"/>
