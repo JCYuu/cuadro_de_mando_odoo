@@ -13,7 +13,5 @@ export class NumberCard extends Component {
         }
     }
     setup(){
-        console.log(this.props)
-        console.log(this.props.data)
     }
 }
