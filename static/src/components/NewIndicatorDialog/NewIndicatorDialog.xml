@@ -342,6 +342,7 @@
                                         <option t-att-value="`${field.name}-${granularity.granularity}`"
                                                 t-esc="granularity.name"></option>
                                     </t>
+                                    <option t-if="field.name.includes('birth')" t-att-value="`${field.name}-age`">Edad o años transcurridos hasta fecha actual</option>
                                 </select>
                             </div>
                         </t>

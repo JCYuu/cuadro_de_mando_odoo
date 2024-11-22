@@ -6,6 +6,7 @@ import random
 import odoo.http
 from odoo import http
 from odoo.http import request
+from datetime import date
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +43,9 @@ class IndicatorDashboard(http.Controller):
         # print(request.env.user.lang)
         # print(self.lang)
         print('called get modules')
-        modules = request.env["ir.module.module"].search([("state", "=", "installed"), ('application', '=', 'true')])
-        return [{'name': module.name, 'desc': module.shortdesc} for module in modules]
+        modules = request.env["ir.module.module"].search([("state", "=", "installed"), ('application', '=', 'true'), ("name", "!=", "cuadro_de_mando")])
+        modules_with_models = modules.filtered(lambda m: len(self.get_model_list(m.name).filtered(lambda model: model.model.split('.')[0] in m.name)) > 0)
+        return [{'name': module.name, 'desc': module.shortdesc} for module in modules_with_models]
 
     def check_user_access_rights(self, model):
         print('---checking model---')
@@ -72,18 +74,22 @@ class IndicatorDashboard(http.Controller):
     @http.route('/awesome_dashboard/models', type='json', auth='user')
     def get_models(self, module_name: str) -> list:
         print("called get models")
-        print(module_name)
-        model_data_records = request.env['ir.model.data'].search([("module", "=", module_name)])
-        model_names = request.env['ir.model'].search([('id', 'in', model_data_records.mapped('res_id'))])
+        print(module_name)        
+        model_names = self.get_model_list(module_name)
         # model_list = [{'model': model.model, 'model_name': model.name} for model in model_names if
         #               self.check_user_access_rights(model) and model.model.split('.')[0] in module_name]
         model_list = []
         for model in model_names:
             if self.check_user_access_rights(model) and model.model.split('.')[0] in module_name:
                 print(model.model)
-                model_list.append({'model': model.model, 'model_name': model.name})
+                if not request.env[model.model]._abstract:
+                    model_list.append({'model': model.model, 'model_name': model.name})
         print(model_list)
         return model_list
+
+    def get_model_list(self, module_name):
+        model_data_records = request.env['ir.model.data'].search([("module", "=", module_name)])
+        return request.env['ir.model'].search([('id', 'in', model_data_records.mapped('res_id'))])
 
     @http.route('/awesome_dashboard/model_fields', type='json', auth='user')
     def get_model_fields(self, model_name: str):
@@ -92,11 +98,6 @@ class IndicatorDashboard(http.Controller):
         model_fields = request.env[model_name].fields_get()
         # print(model_fields)
         return {field: model_fields[field] for field in model_fields}
-
-    @http.route('/awesome_dashboard/fetch_for_pie_chart', type='json', auth='user')
-    def get_pie_chart_data(self, model_name: str, labels: str, field: str):
-        data = request.env[model_name].search([])
-        return {record[labels]: record[field] for record in data}
 
     def get_relational_label(self, item, labels):
         item_type = type(item).__name__
@@ -144,6 +145,11 @@ class IndicatorDashboard(http.Controller):
         groups = list(map(lambda item: item.split('-'), group_by))
         return [item[groups[index][1]] if len(groups[index])>1 else item for index, item in enumerate(record[:-1])] + [record[-1]]
 
+    def calc_age_for_groupby(self, record, group_by):
+        current_year = date.today().year
+        # birth_years = list(map(lambda item: item.split))
+        return [f'{current_year - item.year} años' if ':age' in group_by[index] else item for index, item in enumerate(record[:-1])] + [record[-1]]
+
     @http.route('/awesome_dashboard/group_query', type='json', auth='user')
     def group_query_indicator(self, model_name: str, field: str, group_by: list, domain: list = [],
                               agg: str = 'count', order_by: str = "", graph: bool = False) -> dict:
@@ -167,10 +173,11 @@ class IndicatorDashboard(http.Controller):
         # print('group by label', group_by_label)
         print('Order by', order_by)
         print('graph', graph)
-        group_by_fields = list(map(lambda field: field.split('-')[0], group_by))
+        calculate_age = any(':age' in field for field in group_by)
+        group_by_fields = list(map(lambda field: field.split('-')[0] if not ':age' in field else f'{field.split(":")[0]}:year', group_by))        
         if domain:
             domain = [tuple(filter) for filter in domain]
-        fields_info = request.env[model_name].fields_get([field]+group_by_fields)
+        fields_info = request.env[model_name].fields_get([field]+[field.split(':')[0] for field in group_by_fields])
         field_name = fields_info[field]['string']
         lang = request.env.user.lang
         order = {"asc": False, "desc": True}
@@ -178,6 +185,8 @@ class IndicatorDashboard(http.Controller):
         main_data = request.env[model_name].with_context(lang=lang)._read_group(domain, aggregates=[f'{field}:{agg}'],
                                                                                 groupby=[*group_by_fields])
         labelled_data = list(map(lambda record: self.get_relations_for_groupby(record, group_by), main_data))
+        if calculate_age:
+            labelled_data = list(map(lambda record: self.calc_age_for_groupby(record, group_by), labelled_data))
         # for index, record in enumerate(main_data):
         #     labelled_data.append(list(map()))
         print(labelled_data)
@@ -218,7 +227,7 @@ class IndicatorDashboard(http.Controller):
                     
                 print(data_json)
             return {'data': labelled_data, 'data_json': data_json, 'groups': groups,
-                    'headers': [fields_info[field]['string'] for field in group_by_fields]+['Cantidad' if agg == 'count' else f'{field_name} - {agg}']}
+                    'headers': [fields_info[field]['string'] if not ':age' in group_by[index] else 'Edad' for index, field in enumerate(group_by_fields)]+['Cantidad' if agg == 'count' else f'{field_name} - {agg}']}
         else:
             labels, datasets = [], []
             for record in labelled_data:
