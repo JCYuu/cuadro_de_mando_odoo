@@ -299,7 +299,7 @@ class IndicatorDashboard(http.Controller):
             'order_by': order_by,
         })
         print(created)
-        print(created.name)
+        # created_id = request.env['dashboard.indicator'].search([('name', '=', created.name)])[0].id
         return created
 
     @http.route('/awesome_dashboard/retrieve_indicator', type='json', auth='user')
@@ -320,6 +320,7 @@ class IndicatorDashboard(http.Controller):
                         data = self.group_query_indicator(indicator.model, indicator.field, group_by, indicator.domain if indicator.domain else [], 
                                                          indicator.agg, graph=is_graph, order_by=indicator.order_by)
                         indicator_list.append({
+                            'id': indicator.id,
                             'name': indicator.name,
                             'data': data,
                             'graph': indicator.graph_type
@@ -327,6 +328,7 @@ class IndicatorDashboard(http.Controller):
                     else:
                         data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.domain if indicator.domain else [], indicator.order_by, is_graph)
                         indicator_list.append({
+                            'id': indicator.id,
                             'name': indicator.name,
                             'data': data,
                             'graph': indicator.graph_type
