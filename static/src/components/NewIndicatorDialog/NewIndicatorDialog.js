@@ -14,6 +14,7 @@ export class NewIndicatorDialog extends Component {
     static props = ["close", "updateItems", "dashboardId", "*"]
 
     setup() {
+        console.log(this.props)
         console.log("begin setup()");
         console.log("setting up dialog");
         console.log(this.props.dashboardId == undefined);
@@ -113,7 +114,7 @@ export class NewIndicatorDialog extends Component {
         else if (['integer', 'float', 'monetary'].includes(fieldType)) {
             theElement.type = 'number';
         }
-        else if (fieldType == 'date') {
+        else if (fieldType == 'date' || fieldType == 'datetime') {
             theElement.type = 'date';
         }
     }
@@ -279,6 +280,7 @@ export class NewIndicatorDialog extends Component {
             console.log("This error in filters or validation: ", error);
             return;
         }
+        let newIndicatorId;
         if (this.state.isGroupQuery) {
             try {
                 console.log(this.state.dashboardItemType)
@@ -301,13 +303,13 @@ export class NewIndicatorDialog extends Component {
                     return;
                 }
                 else {
-                    if (this.props.updateItems) {
-                        this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType);
-                    }
-                    this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
+                    newIndicatorId = await this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField,
                         this.state.dashboardItemType, undefined, true,
                         this.state.groupingFields.map(field => field.toGroup),
                         this.state.aggregation, (this.state.order) ? this.state.order : undefined, this.state.filters);
+                    /* if (this.props.updateItems) {
+                        this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType, newIndicatorId);
+                    } */
                 }
             } catch (error) {
                 this.showNotification(`Ha ocurrido un error durante la creación del indicador`, true);
@@ -336,12 +338,12 @@ export class NewIndicatorDialog extends Component {
                     return
                 }
                 else {
-                    if (this.props.updateItems) {
-                        this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType)
-                    }
-                    this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType,
+                    newIndicatorId = await this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType,
                         this.state.labelsField, undefined, undefined, undefined, undefined,
                         (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined, this.state.filters);
+                   /*  if (this.props.updateItems) {
+                        this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType, newIndicatorId);
+                    } */
                 }
             } catch (error) {
                 this.showNotification(`Ha ocurrido un error durante la creación del indicador`, true);
@@ -350,6 +352,9 @@ export class NewIndicatorDialog extends Component {
             }
         }
         if (this.props.dashboardId) {
+            if (this.props.updateItems) {
+                await this.props.updateItems();
+            }
             this.showNotification("Indicador agregado al tablero correctamente", false)
             this.props.close();
         }
@@ -372,7 +377,7 @@ export class NewIndicatorDialog extends Component {
     async createNewIndicator(name, model, field, graph_type, labels = "",
         group_query = false, group_fields = [], agg = "count", order_by = "", domain = []) {
         try {
-            let new_record = await this.rpc('/awesome_dashboard/create_indicator', {
+            let newRecordId = await this.rpc('/awesome_dashboard/create_indicator', {
                 "dashboard_id": (this.props.dashboardId) ? this.props.dashboardId : "",
                 "name": name,
                 "model": model,
@@ -385,7 +390,8 @@ export class NewIndicatorDialog extends Component {
                 "agg": agg,
                 "order_by": order_by,
             })
-            console.log(new_record)
+            console.log(newRecordId);
+            return newRecordId;
         } catch (error) {
             this.showNotification(`Error en el servidor durante la creación de este indicador`, true);
             console.log("Error at creating indicator:\n", error);
@@ -423,7 +429,7 @@ export class NewIndicatorDialog extends Component {
                                 'toGroup': toGroup
                             }
                         }
-                        else if (field.type == 'datetime') {
+                        else if (field.type == 'datetime' || field.type == 'date') {
                             groupData = { 'name': fieldName, 'description': field.string, 'date': true, 'toGroup': toGroup };
                         }
                         else {
@@ -489,8 +495,6 @@ export class NewIndicatorDialog extends Component {
 
     async onChangeGroupsLabel(event, index, isDate = false) {
         console.log('OnChangeGroupLabel')
-        /*         console.log(typeof event.target.value);
-                console.log(typeof model); */
         console.log(this.state.groupingFields);
         try {
             if (!isDate) {
