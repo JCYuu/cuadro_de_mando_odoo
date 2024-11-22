@@ -103,8 +103,8 @@ class IndicatorDashboard extends Component {
                 }
             });
         }
-        console.log("INFO: pdated indicators list")
-        console.log(this.addedItems);
+        console.log("INFO: Updated indicators list")
+        console.log('Indicators list: ', this.addedItems);
         return true
     }
 

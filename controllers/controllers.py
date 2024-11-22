@@ -59,7 +59,7 @@ class IndicatorDashboard(http.Controller):
 
     @http.route('/awesome_dashboard/models', type='json', auth='user')
     def get_models(self, module_name: str) -> list:
-        print(f"---fetching models for f{module_name}---")
+        print(f"---fetching models for {module_name}---")
         model_names = self.get_model_list(module_name)
         model_list = []
         for model in model_names:
