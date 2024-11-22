@@ -13,7 +13,12 @@ class DashboardIndicator(models.Model):
     domain = fields.Json()
     field = fields.Char("")
     labels = fields.Char("")
-    graph_type = fields.Char("Tipo de Indicador")
+    graph_type = fields.Selection(string="Tipo de Vista de Indicador", selection=[
+        ('number', 'Texto'),
+        ('pie', 'Gráfico de pastel'),
+        ('bar', 'Gráfico de barras'),
+        ('line', 'Gráfico de líneas'),
+    ], required=True)
     group_query = fields.Boolean(default=False)
     group_fields = fields.Text("Campos agrupados")
     agg = fields.Char("")
