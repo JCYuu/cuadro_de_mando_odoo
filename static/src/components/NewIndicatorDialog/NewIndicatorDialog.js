@@ -85,7 +85,7 @@ export class NewIndicatorDialog extends Component {
     async fetchModules() {
         try {
             console.log("INFO: Fetching modules");
-            let modules = await this.rpc("/awesome_dashboard/modules");
+            let modules = await this.rpc("/cuadro_de_mando/modules");
 
             this.modules = modules;
 
@@ -153,7 +153,7 @@ export class NewIndicatorDialog extends Component {
     async fetchModels() {
         this.state.moduleIsSelected = false;
         try {
-            let models = await this.rpc("/awesome_dashboard/models", { module_name: this.state.selectedModule });
+            let models = await this.rpc("/cuadro_de_mando/models", { module_name: this.state.selectedModule });
             this.models = models;
             this.state.moduleIsSelected = true;
         } catch (error) {
@@ -178,7 +178,7 @@ export class NewIndicatorDialog extends Component {
         this.state.modelIsSelected = false;
         console.log(`INFO: Fetching field info for ${this.state.selectedModel}`);
         try {
-            let fields = await this.rpc("/awesome_dashboard/model_fields", { model_name: this.state.selectedModel });
+            let fields = await this.rpc("/cuadro_de_mando/model_fields", { model_name: this.state.selectedModel });
             console.log('Field info: ', fields);
             this.fields = fields;
             this.changeSelectableFields();
@@ -190,7 +190,7 @@ export class NewIndicatorDialog extends Component {
     }
 
     async fetchRelationalFieldsData(model) {
-        let data = await this.rpc("/awesome_dashboard/model_fields", { model_name: model });
+        let data = await this.rpc("/cuadro_de_mando/model_fields", { model_name: model });
         return data
     }
 
@@ -266,7 +266,7 @@ export class NewIndicatorDialog extends Component {
         if (this.state.isGroupQuery) {
             try {
                 console.log('INFO: Fetching new indicator using group query');
-                let data = await this.rpc('/awesome_dashboard/group_query', {
+                let data = await this.rpc('/cuadro_de_mando/group_query', {
                     domain: this.state.filters,
                     model_name: this.state.selectedModel,
                     field: this.state.selectedField,
@@ -301,7 +301,7 @@ export class NewIndicatorDialog extends Component {
         else {
             try {
                 console.log('INFO: Fetching new indicator using single query');
-                let data = await this.rpc('/awesome_dashboard/indicator_query', {
+                let data = await this.rpc('/cuadro_de_mando/indicator_query', {
                     domain: this.state.filters,
                     model_name: this.state.selectedModel,
                     field: this.state.selectedField,
@@ -357,7 +357,7 @@ export class NewIndicatorDialog extends Component {
     async createNewIndicator(name, model, field, graph_type, labels = "",
         group_query = false, group_fields = [], agg = "count", order_by = "", domain = []) {
         try {
-            let newRecordId = await this.rpc('/awesome_dashboard/create_indicator', {
+            let newRecordId = await this.rpc('/cuadro_de_mando/create_indicator', {
                 "dashboard_id": (this.props.dashboardId) ? this.props.dashboardId : "",
                 "name": name,
                 "model": model,

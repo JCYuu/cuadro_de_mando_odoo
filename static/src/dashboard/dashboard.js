@@ -68,7 +68,7 @@ class IndicatorDashboard extends Component {
     async fetchIndicators(){
         console.log('---Fetching indicators---');   
         this.addedItems.length = 0;     
-        let indicators = await this.rpc('/awesome_dashboard/retrieve_indicator', {
+        let indicators = await this.rpc('/cuadro_de_mando/retrieve_indicator', {
             dashboard_id: this.dashboardId
         });
         console.log(indicators);
