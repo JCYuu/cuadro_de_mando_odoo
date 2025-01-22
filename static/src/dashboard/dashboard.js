@@ -73,17 +73,17 @@ class IndicatorDashboard extends Component {
         });
         console.log(indicators);
         for (const indicator of indicators) {
-            this.updateItemsList(indicator.name, indicator.data, indicator.graph, indicator.id);
+            this.updateItemsList(indicator.name, indicator.data, indicator.graph, indicator.id, indicator.size);
         }
     }
 
-    updateItemsList(item_title, data, component, item_id) {
+    updateItemsList(item_title, data, component, item_id, size) {
         if (component == "number"){
             this.addedItems.push({
                 id: item_id,
                 description: "new item description",
                 Component: this.component_types[component],
-                size: 2,
+                size: size,
                 props: {
                     title: item_title,
                     values: data
@@ -96,7 +96,7 @@ class IndicatorDashboard extends Component {
                 id: item_id,
                 description: "new item description",
                 Component: this.component_types[component],
-                size: 2,
+                size: size,
                 props: {
                     title: item_title,
                     values: data

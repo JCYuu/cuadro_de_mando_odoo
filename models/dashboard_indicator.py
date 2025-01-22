@@ -19,6 +19,12 @@ class DashboardIndicator(models.Model):
         ('bar', 'Gráfico de barras'),
         ('line', 'Gráfico de líneas'),
     ], required=True)
+    graph_size = fields.Selection(string="Tamaño en pantalla", selection=[
+        ('1', '1x'),
+        ('2', '2x'),
+        ('3', '3x'),
+        ('4', '4x'),
+    ], required=True)
     group_query = fields.Boolean(default=False)
     group_fields = fields.Text("Campos agrupados")
     agg = fields.Char("")

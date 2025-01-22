@@ -233,6 +233,7 @@ class IndicatorDashboard(http.Controller):
             'field': field,
             'labels': labels,
             'graph_type': graph_type,
+            'graph_size': '2',
             'group_query': group_query,
             'group_fields': ','.join(group_fields) if group_fields else "",
             'agg': agg,
@@ -260,7 +261,8 @@ class IndicatorDashboard(http.Controller):
                             'id': indicator.id,
                             'name': indicator.name,
                             'data': data,
-                            'graph': indicator.graph_type
+                            'graph': indicator.graph_type,
+                            'size': int(indicator.graph_size) if indicator.graph_size else 2
                         })
                     else:
                         data = self.query_indicator_data(indicator.model, indicator.labels, indicator.field, indicator.domain if indicator.domain else [], indicator.order_by, is_graph)
@@ -268,7 +270,8 @@ class IndicatorDashboard(http.Controller):
                             'id': indicator.id,
                             'name': indicator.name,
                             'data': data,
-                            'graph': indicator.graph_type
+                            'graph': indicator.graph_type,
+                            'size': int(indicator.graph_size) if indicator.graph_size else 2
                         })
             except KeyError:
                 continue

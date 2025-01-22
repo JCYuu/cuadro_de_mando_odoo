@@ -16,6 +16,7 @@
                     <group>
                         <field name="name"/>
                         <field name="model" readonly="1"/>
+                        <field name="graph_size" />
                         <field name="graph_type" />
                         <field name="dashboard_ids"/>
                     </group>
@@ -31,7 +32,7 @@
             <tree string="Dashboard Indicators" create="false">
                 <field name="name"/>     
                 <field name="model" />
-                <field name="graph_type" />           
+                <field name="graph_type" />  
                 <!-- <button name="cuadro_de_mando.indicator" string="Crear nuevo indicador" type="action"></button> -->
             </tree>
         </field>
