@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import random
 
-import odoo.http
 from odoo import http
 from odoo.http import request
 from datetime import date
@@ -15,12 +13,26 @@ class IndicatorDashboard(http.Controller):
 
     @http.route('/cuadro_de_mando/modules', type='json', auth='user')
     def get_modules(self) -> list:
+        """Queries the currently installed applications in the odoo server
+
+        Returns:
+            list: list of installed modules
+        """
         print('---fetching modules---')
         modules = request.env["ir.module.module"].search([("state", "=", "installed"), ('application', '=', 'true'), ("name", "!=", "cuadro_de_mando")])
         modules_with_models = modules.filtered(lambda m: len(self.get_model_list(m.name).filtered(lambda model: model.model.split('.')[0] in m.name)) > 0)
         return [{'name': module.name, 'desc': module.shortdesc} for module in modules_with_models]
 
     def check_user_access_rights(self, model):
+        """Checks whether the current user has access to a model
+
+        Args:
+            model (ir.model): A model from an odoo module
+
+        Returns:
+            bool: If the user has access or not
+        """
+    
         user = request.env.user
         access_records = request.env['ir.model.access'].search([('model_id', '=', model.id)])
         has_access = True
@@ -34,6 +46,14 @@ class IndicatorDashboard(http.Controller):
 
     @http.route('/cuadro_de_mando/models', type='json', auth='user')
     def get_models(self, module_name: str) -> list:
+        """Returns the models the user has access to that belongs to the model
+
+        Args:
+            module_name (str): Name of the module
+
+        Returns:
+            list: list of dict with model name and model's model name
+        """
         print(f"---fetching models for {module_name}---")
         model_names = self.get_model_list(module_name)
         model_list = []
@@ -202,17 +222,20 @@ class IndicatorDashboard(http.Controller):
     def create_new_indicator(self, dashboard_id,  name: str, model: str, field: str, graph_type: str, domain: list = [], labels: str = "",
                              group_query: bool = False, group_fields: list = [],
                              agg: str = 'count', order_by: str = ""):
-        """
+        """Creates a new indicator with the data provided
 
-        :param dashboard_id:
-        :param name:
-        :param model:
-        :param field:
-        :param graph_type:
-        :param labels:
-        :param group_query:
-        :param group_fields:
-        :param agg:
+        Args:
+            dashboard_id (str): The dashboard this indicator will be associated to
+            name (str): A name for this indicator
+            model (str): The model it retrieves data from
+            field (str): The field from the model 
+            graph_type (str): The graph representation of this indicator
+            domain (list, optional): List of filters to be used in the query. Defaults to empty list.
+            labels (str, optional): Name to identify the data. Defaults to "".
+            group_query (bool, optional): Whether is a groupby query or not. Defaults to False.
+            group_fields (list, optional): List of fields to group by. Defaults to [].
+            agg (str, optional): Aggregation used in the group by query Defaults to 'count'.
+            order_by (str, optional): ASC or DESC order. Defaults to "".
         """
         # if domain:
         #     domain = [tuple(filter) for filter in domain]

@@ -77,6 +77,13 @@ class IndicatorDashboard extends Component {
         }
     }
 
+    /**
+     * @param {string} item_title
+     * @param {any} data
+     * @param {string} component
+     * @param {any} item_id
+     * @param {number} size
+     */
     updateItemsList(item_title, data, component, item_id, size) {
         if (component == "number"){
             this.addedItems.push({
