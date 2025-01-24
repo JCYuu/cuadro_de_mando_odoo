@@ -184,8 +184,8 @@ export class NewIndicatorDialog extends Component {
             this.changeSelectableFields();
             this.state.modelIsSelected = true;
         } catch (error) {
-            this.showNotification(`Error al solicitar los campos del modelo ${this.selectedModel}`, true);
-            console.error(`Error retrieving fields from model ${this.selectedModel}:`, error);
+            this.showNotification(`Error al solicitar los campos del modelo ${this.state.selectedModel}`, true);
+            console.error(`Error retrieving fields from model ${this.state.selectedModel}:`, error);
         }
     }
 
@@ -194,6 +194,12 @@ export class NewIndicatorDialog extends Component {
         return data
     }
 
+    /**
+     * Validates all necessary fields before creating or updating an indicator.
+     * Checks for required fields and performs additional validations based on whether it's a group query or a single query.
+     *
+     * @throws {Error} If any required field is missing or invalid.
+     */
     validateNecessaryFields() {
         if (this.state.isGroupQuery) {
             if (this.state.groupingFields.length) {
@@ -220,6 +226,15 @@ export class NewIndicatorDialog extends Component {
         }
     }
 
+    /**
+     * Retrieves filter information from the DOM elements and stores it in the state.
+     *
+     * This method iterates through the filter rows, extracts field, operator, and value
+     * information from each row, validates the data, and adds valid filters to the
+     * `this.state.filters` array.
+     *
+     * @throws {Error} If any required filter field is missing or invalid.
+     */
     retrieveTheFilters() {
         this.state.filters = [];
         console.log('INFO: Retrieving filters')
@@ -265,7 +280,7 @@ export class NewIndicatorDialog extends Component {
         let newIndicatorId;
         if (this.state.isGroupQuery) {
             try {
-                console.log('INFO: Fetching new indicator using group query');
+                /* console.log('INFO: Fetching new indicator using group query');
                 let data = await this.rpc('/cuadro_de_mando/group_query', {
                     domain: this.state.filters,
                     model_name: this.state.selectedModel,
@@ -275,10 +290,8 @@ export class NewIndicatorDialog extends Component {
                     agg: this.state.aggregation,
                     order_by: this.state.order
                 });
-                console.log('Indicator data:', data);
-                /*  if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
-                     return;
-                 } */
+                console.log('Indicator data:', data); */
+                               
                 if (await this.indicatorExists(this.state.indicatorName)) {
                     this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return;
@@ -300,7 +313,7 @@ export class NewIndicatorDialog extends Component {
         }
         else {
             try {
-                console.log('INFO: Fetching new indicator using single query');
+                /* console.log('INFO: Fetching new indicator using single query');
                 let data = await this.rpc('/cuadro_de_mando/indicator_query', {
                     domain: this.state.filters,
                     model_name: this.state.selectedModel,
@@ -309,17 +322,14 @@ export class NewIndicatorDialog extends Component {
                     order_by: (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : "",
                     graph: ['bar', 'pie', 'line'].includes(this.state.dashboardItemType),
                 });
-                console.log('Indicator data: ', data);
-                /* if (!['bar', 'pie', 'line'].includes(this.state.dashboardItemType)){
-                    return;
-                } */
+                console.log('Indicator data: ', data); */
                 if (await this.indicatorExists(this.state.indicatorName)) {
                     this.showNotification('Ya existe un indicador con este nombre, pruebe con otro', true);
                     return
                 }
                 else {
                     newIndicatorId = await this.createNewIndicator(this.state.indicatorName, this.state.selectedModel, this.state.selectedField, this.state.dashboardItemType,
-                        this.state.labelsField, undefined, undefined, undefined, undefined,
+                        this.state.labelsField, undefined, undefined, undefined,
                         (this.state.orderByField) ? `${this.state.orderByField} ${this.state.order}` : undefined, this.state.filters);
                    /*  if (this.props.updateItems) {
                         this.props.updateItems(this.state.indicatorName, data, this.state.dashboardItemType, newIndicatorId);
@@ -423,8 +433,8 @@ export class NewIndicatorDialog extends Component {
 
     async onChangeGroupsLabel(event, index, isDate = false) {
         try {
+            let fieldName = this.state.groupingFields[index].name;
             if (!isDate) {
-                let fieldName = this.state.groupingFields[index].name;
                 this.state.groupingFields[index].toGroup = (event.target.value) ? `${fieldName}-${event.target.value}` : fieldName;
             }
             else {
